@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.js';
-import FullScreenLoader from '../components/FullScreenLoader.jsx';
+import { useAuth } from 'src/hooks/useAuth.js';
+import FullScreenLoader from 'src/components/FullScreenLoader';
 
 // Gate for authenticated areas: waits for the session check, then either
 // renders the nested routes or redirects to /login.

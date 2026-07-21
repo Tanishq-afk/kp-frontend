@@ -1,23 +1,23 @@
 import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { ROLE } from '../config/constants.js';
+import { ROLE } from 'src/config/constants.js';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import RoleRoute from './RoleRoute.jsx';
 import RoleHome from './RoleHome.jsx';
-import AppLayout from '../layouts/AppLayout.jsx';
-import AuthLayout from '../layouts/AuthLayout.jsx';
+import AppLayout from 'src/layouts/AppLayout.jsx';
+import AuthLayout from 'src/layouts/AuthLayout.jsx';
 
 // Feature pages are code-split so each route loads on demand (keeps the initial
 // bundle small — e.g. the charts only load when the dashboard is opened).
-const LoginPage = lazy(() => import('../features/auth/LoginPage.jsx'));
-const BillingPage = lazy(() => import('../features/billing/BillingPage.jsx'));
-const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage.jsx'));
-const CategoriesPage = lazy(() => import('../features/categories/CategoriesPage.jsx'));
-const ProductsPage = lazy(() => import('../features/products/ProductsPage.jsx'));
-const ProductFormPage = lazy(() => import('../features/products/ProductFormPage.jsx'));
-const PrintQueuePage = lazy(() => import('../features/barcodes/PrintQueuePage.jsx'));
-const CustomersPage = lazy(() => import('../features/customers/CustomersPage.jsx'));
-const BillsPage = lazy(() => import('../features/bills/BillsPage.jsx'));
+const LoginPage = lazy(() => import('src/pages/Login'));
+const BillingPage = lazy(() => import('src/pages/Billing'));
+const DashboardPage = lazy(() => import('src/pages/Dashboard'));
+const CategoriesPage = lazy(() => import('src/pages/Categories'));
+const ProductsPage = lazy(() => import('src/pages/Products'));
+const ProductFormPage = lazy(() => import('src/pages/Products/form.jsx'));
+const PrintQueuePage = lazy(() => import('src/pages/PrintQueue'));
+const CustomersPage = lazy(() => import('src/pages/Customers'));
+const BillsPage = lazy(() => import('src/pages/Bills'));
 
 // Helpers to keep the route table readable.
 const adminOnly = (el) => <RoleRoute allow={[ROLE.ADMIN]}>{el}</RoleRoute>;

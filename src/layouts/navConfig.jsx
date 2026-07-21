@@ -5,7 +5,7 @@ import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
-import { ROLE } from '../config/constants.js';
+import { ROLE } from 'src/config/constants.js';
 
 // Sidebar navigation, filtered by role in AppLayout.
 export const NAV_ITEMS = [

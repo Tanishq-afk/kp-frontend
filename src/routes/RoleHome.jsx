@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.js';
-import { ROLE } from '../config/constants.js';
+import { useAuth } from 'src/hooks/useAuth.js';
+import { ROLE } from 'src/config/constants.js';
 
 // The index route ("/") sends each role to its landing page:
 // admin -> billing counter, superadmin -> dashboard.

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import * as authApi from '../api/auth.api.js';
-import { getToken, setToken, clearToken } from '../api/client.js';
+import * as authApi from 'src/api/auth.api.js';
+import { getToken, setToken, clearToken } from 'src/api/client.js';
 
 export const AuthContext = createContext(null);
 

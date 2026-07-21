@@ -9,7 +9,7 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import StorefrontRoundedIcon from '@mui/icons-material/StorefrontRounded';
 import { useTheme } from '@mui/material/styles';
-import { useAuth } from '../hooks/useAuth.js';
+import { useAuth } from 'src/hooks/useAuth.js';
 import { NAV_ITEMS } from './navConfig.jsx';
 
 const DRAWER_WIDTH = 248;

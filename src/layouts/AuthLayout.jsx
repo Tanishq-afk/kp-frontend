@@ -12,7 +12,8 @@ export default function AuthLayout() {
         alignItems: 'center',
         justifyContent: 'center',
         p: 2,
-        background: 'linear-gradient(135deg, #6d28d9 0%, #ec4899 100%)',
+        background:
+          'radial-gradient(80% 60% at 50% -10%, rgba(162,255,0,0.12) 0%, rgba(11,11,11,0) 60%), #0B0B0B',
       }}
     >
       <Suspense fallback={<CircularProgress sx={{ color: '#fff' }} />}>
