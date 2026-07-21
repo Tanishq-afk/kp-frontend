@@ -10,4 +10,5 @@ export const PATHS = {
   printQueue: '/print-queue',
   customers: '/customers',
   bills: '/bills',
+  returns: '/returns',
 };

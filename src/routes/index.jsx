@@ -11,6 +11,7 @@ import AuthLayout from 'src/layouts/AuthLayout.jsx';
 // bundle small — e.g. the charts only load when the dashboard is opened).
 const LoginPage = lazy(() => import('src/pages/Login'));
 const BillingPage = lazy(() => import('src/pages/Billing'));
+const ReturnsPage = lazy(() => import('src/pages/Returns'));
 const DashboardPage = lazy(() => import('src/pages/Dashboard'));
 const CategoriesPage = lazy(() => import('src/pages/Categories'));
 const ProductsPage = lazy(() => import('src/pages/Products'));
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
 
           // Admin — inventory & POS
           { path: 'billing', element: adminOnly(<BillingPage />) },
+          { path: 'returns', element: adminOnly(<ReturnsPage />) },
           { path: 'products', element: adminOnly(<ProductsPage />) },
           { path: 'products/new', element: adminOnly(<ProductFormPage />) },
           { path: 'products/:id/edit', element: adminOnly(<ProductFormPage />) },
