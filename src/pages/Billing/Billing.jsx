@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { Badge, Button, Grid, Stack } from '@mui/material';
 import PauseCircleOutlineRoundedIcon from '@mui/icons-material/PauseCircleOutlineRounded';
@@ -9,6 +9,7 @@ import CartList from 'src/sections/billing/CartList';
 import CheckoutPanel from 'src/sections/billing/CheckoutPanel';
 import HeldBillsDialog from 'src/sections/billing/HeldBillsDialog';
 import BillSuccessDialog from 'src/sections/billing/BillSuccessDialog';
+import BillReceiptDialog from 'src/sections/bills/BillReceiptDialog';
 import { useBilling } from 'src/hooks/useBilling.js';
 import * as barcodesApi from 'src/api/barcodes.api.js';
 import * as customersApi from 'src/api/customers.api.js';
@@ -19,8 +20,10 @@ import { BARCODE_STATUS } from 'src/config/constants.js';
 export default function BillingPage() {
   const billing = useBilling();
   const { enqueueSnackbar } = useSnackbar();
+  const qc = useQueryClient();
   const [heldOpen, setHeldOpen] = useState(false);
   const [successBill, setSuccessBill] = useState(null);
+  const [printBillId, setPrintBillId] = useState(null);
 
   const heldQuery = useQuery({
     queryKey: ['heldBills'],
@@ -60,6 +63,7 @@ export default function BillingPage() {
     onSuccess: (bill) => {
       setSuccessBill(bill);
       billing.reset();
+      qc.invalidateQueries({ queryKey: ['customers'] }); // reflect the note on the customer
     },
     onError: (e) => enqueueSnackbar(errorMessage(e), { variant: 'error' }),
   });
@@ -70,6 +74,7 @@ export default function BillingPage() {
       enqueueSnackbar(`Held as ${bill.holdRef}`, { variant: 'success' });
       billing.reset();
       heldQuery.refetch();
+      qc.invalidateQueries({ queryKey: ['customers'] }); // reflect the note on the customer
     },
     onError: (e) => enqueueSnackbar(errorMessage(e), { variant: 'error' }),
   });
@@ -112,7 +117,12 @@ export default function BillingPage() {
       </Grid>
 
       <HeldBillsDialog open={heldOpen} onClose={() => setHeldOpen(false)} onSettled={() => heldQuery.refetch()} />
-      <BillSuccessDialog bill={successBill} onNewSale={() => setSuccessBill(null)} />
+      <BillSuccessDialog
+        bill={successBill}
+        onNewSale={() => setSuccessBill(null)}
+        onPrint={(id) => setPrintBillId(id)}
+      />
+      <BillReceiptDialog billId={printBillId} onClose={() => setPrintBillId(null)} />
     </>
   );
 }

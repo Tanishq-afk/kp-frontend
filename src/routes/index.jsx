@@ -19,6 +19,7 @@ const ProductFormPage = lazy(() => import('src/pages/Products/form.jsx'));
 const PrintQueuePage = lazy(() => import('src/pages/PrintQueue'));
 const CustomersPage = lazy(() => import('src/pages/Customers'));
 const BillsPage = lazy(() => import('src/pages/Bills'));
+const DaySummaryPage = lazy(() => import('src/pages/DaySummary'));
 
 // Helpers to keep the route table readable.
 const adminOnly = (el) => <RoleRoute allow={[ROLE.ADMIN]}>{el}</RoleRoute>;
@@ -51,8 +52,9 @@ export const router = createBrowserRouter([
           { path: 'print-queue', element: adminOnly(<PrintQueuePage />) },
           { path: 'customers', element: adminOnly(<CustomersPage />) },
 
-          // Bills history — both roles
+          // Bills history + day summary — both roles
           { path: 'bills', element: <BillsPage /> },
+          { path: 'day-summary', element: <DaySummaryPage /> },
         ],
       },
     ],

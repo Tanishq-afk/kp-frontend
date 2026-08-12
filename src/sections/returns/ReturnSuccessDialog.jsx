@@ -23,6 +23,7 @@ const DIRECTION_LABEL = {
 export default function ReturnSuccessDialog({ result, onNew }) {
   const r = result;
   const dir = r?.settlement?.direction;
+  const newLabels = (r?.items || []).filter((it) => it.newBarcode).length;
 
   return (
     <Dialog open={Boolean(r)} onClose={onNew} maxWidth="xs" fullWidth>
@@ -51,6 +52,12 @@ export default function ReturnSuccessDialog({ result, onNew }) {
             />
           </Stack>
         </Stack>
+
+        {newLabels > 0 && (
+          <Typography variant="caption" color="warning.main" sx={{ display: 'block', mt: 2 }}>
+            {newLabels} new barcode label{newLabels === 1 ? '' : 's'} to print — see the Print Queue.
+          </Typography>
+        )}
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button fullWidth variant="contained" size="large" onClick={onNew}>

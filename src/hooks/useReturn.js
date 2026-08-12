@@ -8,7 +8,7 @@ import { DISCOUNT_TYPE, PAYMENT_METHOD } from 'src/config/constants.js';
 // payload. The page layer owns the API mutations + toasts.
 export function useReturn() {
   const [source, setSource] = useState(null); // { bill, items } from getReturnableBill
-  const [selected, setSelected] = useState({}); // barcodeId -> { resellable }
+  const [selected, setSelected] = useState({}); // barcodeId -> { resellable, labelLost }
   const [newItems, setNewItems] = useState([]); // exchange cart: { code, barcodeId, productName, size, mrp }
   const [discountType, setDiscountType] = useState(DISCOUNT_TYPE.FLAT);
   const [discountValue, setDiscountValue] = useState('');
@@ -33,12 +33,19 @@ export function useReturn() {
     setSelected((prev) => {
       const next = { ...prev };
       if (next[barcodeId]) delete next[barcodeId];
-      else next[barcodeId] = { resellable: true };
+      else next[barcodeId] = { resellable: true, labelLost: false };
       return next;
     });
   }, []);
   const setResellable = useCallback((barcodeId, resellable) => {
-    setSelected((prev) => (prev[barcodeId] ? { ...prev, [barcodeId]: { resellable } } : prev));
+    setSelected((prev) =>
+      prev[barcodeId]
+        ? { ...prev, [barcodeId]: { resellable, labelLost: resellable ? prev[barcodeId].labelLost : false } }
+        : prev
+    );
+  }, []);
+  const setLabelLost = useCallback((barcodeId, labelLost) => {
+    setSelected((prev) => (prev[barcodeId] ? { ...prev, [barcodeId]: { ...prev[barcodeId], labelLost } } : prev));
   }, []);
 
   // --- exchange cart ---
@@ -78,7 +85,11 @@ export function useReturn() {
     if (!source) return [];
     return source.items
       .filter((it) => selected[it.barcode])
-      .map((it) => ({ ...it, resellable: selected[it.barcode].resellable }));
+      .map((it) => ({
+        ...it,
+        resellable: selected[it.barcode].resellable,
+        labelLost: selected[it.barcode].labelLost,
+      }));
   }, [source, selected]);
 
   const returnCredit = useMemo(
@@ -113,7 +124,11 @@ export function useReturn() {
   const buildPayload = useCallback(
     () => ({
       originalBill: source?.bill?._id,
-      returnItems: returnItems.map((it) => ({ barcode: it.barcode, resellable: it.resellable })),
+      returnItems: returnItems.map((it) => ({
+        barcode: it.barcode,
+        resellable: it.resellable,
+        labelLost: it.labelLost || false,
+      })),
       newBarcodes: newItems.map((i) => i.code),
       discountType,
       discountValue: Number(discountValue) || 0,
@@ -131,7 +146,7 @@ export function useReturn() {
 
   return {
     source, loadBill, reset,
-    selected, isSelected, toggleReturn, setResellable,
+    selected, isSelected, toggleReturn, setResellable, setLabelLost,
     newItems, hasNewItem, addNewItem, removeNewItem,
     discountType, setDiscountType, discountValue, setDiscountValue,
     payments, addPayment, updatePayment, removePayment,

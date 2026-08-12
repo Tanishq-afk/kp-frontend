@@ -11,4 +11,5 @@ export const PATHS = {
   customers: '/customers',
   bills: '/bills',
   returns: '/returns',
+  daySummary: '/day-summary',
 };

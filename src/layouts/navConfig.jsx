@@ -5,6 +5,7 @@ import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import AssignmentReturnRoundedIcon from '@mui/icons-material/AssignmentReturnRounded';
+import SummarizeRoundedIcon from '@mui/icons-material/SummarizeRounded';
 import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
 import { ROLE } from 'src/config/constants.js';
 
@@ -18,4 +19,5 @@ export const NAV_ITEMS = [
   { label: 'Print Queue', path: '/print-queue', icon: <QrCode2RoundedIcon />, roles: [ROLE.ADMIN] },
   { label: 'Customers', path: '/customers', icon: <PeopleAltRoundedIcon />, roles: [ROLE.ADMIN] },
   { label: 'Bills', path: '/bills', icon: <ReceiptLongRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
+  { label: 'Day Summary', path: '/day-summary', icon: <SummarizeRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
 ];

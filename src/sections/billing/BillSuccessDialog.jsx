@@ -1,9 +1,10 @@
 import { Button, Dialog, DialogActions, DialogContent, Stack, Typography } from '@mui/material';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { formatCurrency } from 'src/utils/format.js';
 
 // Confirmation shown after a sale completes.
-export default function BillSuccessDialog({ bill, onNewSale }) {
+export default function BillSuccessDialog({ bill, onNewSale, onPrint }) {
   return (
     <Dialog open={Boolean(bill)} onClose={onNewSale} maxWidth="xs" fullWidth>
       <DialogContent sx={{ textAlign: 'center', py: 4 }}>
@@ -24,6 +25,15 @@ export default function BillSuccessDialog({ bill, onNewSale }) {
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
+        <Button
+          fullWidth
+          variant="outlined"
+          size="large"
+          startIcon={<PrintRoundedIcon />}
+          onClick={() => onPrint?.(bill?._id)}
+        >
+          Print bill
+        </Button>
         <Button fullWidth variant="contained" size="large" onClick={onNewSale}>
           New sale
         </Button>

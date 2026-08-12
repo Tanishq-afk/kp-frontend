@@ -1,41 +1,30 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSnackbar } from 'notistack';
+import { useQuery } from '@tanstack/react-query';
 import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography,
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { useIsMobile } from 'src/hooks/useIsMobile.js';
-import BarcodeLabel from './BarcodeLabel.jsx';
+import BarcodeLabel from 'src/sections/barcodes/BarcodeLabel.jsx';
 import * as barcodesApi from 'src/api/barcodes.api.js';
-import { errorMessage } from 'src/utils/format.js';
 
-// `product` is a print-queue row ({ product, productName, categoryName, ... }).
-export default function PrintLabelsDialog({ product, onClose }) {
+// Reprint a lost/damaged physical label. Unlike PrintLabelsDialog (the print
+// queue, which only shows never-printed labels), this pulls every unit that's
+// still `available` for the product regardless of printStatus — the whole
+// point is re-printing a label that was already printed once and then lost.
+export default function ReprintBarcodeDialog({ product, onClose }) {
   const open = Boolean(product);
   const isMobile = useIsMobile();
-  const { enqueueSnackbar } = useSnackbar();
-  const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['printLabels', product?.product],
+    queryKey: ['reprintBarcodes', product?._id],
     queryFn: () =>
       barcodesApi
-        .listBarcodes({ product: product.product, printStatus: 'pending', limit: 200 })
+        .listBarcodes({ product: product._id, status: 'available', limit: 200 })
         .then((r) => r.data),
     enabled: open,
   });
   const labels = data || [];
-
-  const mark = useMutation({
-    mutationFn: () => barcodesApi.markPrinted({ product: product.product }),
-    onSuccess: (res) => {
-      enqueueSnackbar(`Marked ${res.data.modified} label(s) printed`, { variant: 'success' });
-      qc.invalidateQueries({ queryKey: ['printQueue'] });
-      onClose();
-    },
-    onError: (e) => enqueueSnackbar(errorMessage(e), { variant: 'error' }),
-  });
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" fullScreen={isMobile}>
@@ -43,7 +32,7 @@ export default function PrintLabelsDialog({ product, onClose }) {
         className="no-print"
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
-        Print labels — {product?.productName}
+        Reprint barcode — {product?.name}
         <IconButton size="small" onClick={onClose}>
           <CloseRoundedIcon />
         </IconButton>
@@ -56,17 +45,23 @@ export default function PrintLabelsDialog({ product, onClose }) {
             {labels.map((b) => (
               <BarcodeLabel key={b._id} barcode={b} />
             ))}
-            {labels.length === 0 && <Typography color="text.secondary">No pending labels.</Typography>}
+            {labels.length === 0 && (
+              <Typography color="text.secondary">
+                No in-stock units found for this product — nothing to print.
+              </Typography>
+            )}
           </Box>
         )}
       </DialogContent>
       <DialogActions className="no-print" sx={{ p: 2 }}>
         <Button onClick={onClose}>Close</Button>
-        <Button startIcon={<PrintRoundedIcon />} onClick={() => window.print()} disabled={!labels.length}>
+        <Button
+          variant="contained"
+          startIcon={<PrintRoundedIcon />}
+          onClick={() => window.print()}
+          disabled={!labels.length}
+        >
           Print
-        </Button>
-        <Button variant="contained" onClick={() => mark.mutate()} disabled={!labels.length || mark.isPending}>
-          {mark.isPending ? 'Working…' : 'Mark printed'}
         </Button>
       </DialogActions>
     </Dialog>

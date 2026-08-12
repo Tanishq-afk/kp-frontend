@@ -3,14 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   Box, Button, Chip, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody,
-  TableCell, TableHead, TablePagination, TableRow, TextField,
+  TableCell, TableHead, TablePagination, TableRow, TextField, Tooltip,
 } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import PageHeader from 'src/components/PageHeader';
 import ProductDetailDialog from 'src/sections/products/ProductDetailDialog';
+import ReprintBarcodeDialog from 'src/sections/products/ReprintBarcodeDialog';
 import * as productsApi from 'src/api/products.api.js';
 import * as categoriesApi from 'src/api/categories.api.js';
 import { useDebounce } from 'src/hooks/useDebounce.js';
@@ -24,6 +26,7 @@ export default function ProductsPage() {
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [detailId, setDetailId] = useState(null);
+  const [reprintProduct, setReprintProduct] = useState(null);
 
   const cats = useQuery({
     queryKey: ['categories', 'all'],
@@ -118,6 +121,17 @@ export default function ProductsPage() {
                   <IconButton size="small" onClick={() => navigate(`/products/${p._id}/edit`)}>
                     <EditRoundedIcon fontSize="small" />
                   </IconButton>
+                  <Tooltip title={p.currentStock > 0 ? 'Reprint barcode' : 'No stock — nothing to print'}>
+                    <span>
+                      <IconButton
+                        size="small"
+                        disabled={!(p.currentStock > 0)}
+                        onClick={() => setReprintProduct(p)}
+                      >
+                        <PrintRoundedIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}
@@ -147,6 +161,7 @@ export default function ProductsPage() {
         onEdit={(id) => navigate(`/products/${id}/edit`)}
         onDeleted={() => setDetailId(null)}
       />
+      <ReprintBarcodeDialog product={reprintProduct} onClose={() => setReprintProduct(null)} />
     </Box>
   );
 }

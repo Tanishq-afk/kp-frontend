@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  Box, Chip, Dialog, DialogContent, DialogTitle, Divider, IconButton, Stack, Table, TableBody,
-  TableCell, TableHead, TableRow, Typography,
+  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton,
+  Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography,
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { useIsMobile } from 'src/hooks/useIsMobile.js';
 import * as billsApi from 'src/api/bills.api.js';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
@@ -22,7 +23,7 @@ function Line({ label, value, strong, color }) {
   );
 }
 
-export default function BillDetailDialog({ billId, onClose }) {
+export default function BillDetailDialog({ billId, onClose, onPrint }) {
   const open = Boolean(billId);
   const isMobile = useIsMobile();
   const { data: b, isLoading } = useQuery({
@@ -139,6 +140,17 @@ export default function BillDetailDialog({ billId, onClose }) {
           </Stack>
         )}
       </DialogContent>
+      {b && (
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<PrintRoundedIcon />}
+            onClick={() => onPrint?.(b._id)}
+          >
+            Print
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 }

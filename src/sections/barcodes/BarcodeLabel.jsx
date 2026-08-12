@@ -1,22 +1,26 @@
 import { useEffect, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
 import JsBarcode from 'jsbarcode';
-import { formatCurrency } from 'src/utils/format.js';
+import { formatNumber } from 'src/utils/format.js';
 
-// A single printable label: product name, size, MRP, the scannable Code128
-// barcode (with its code), category, and the serial number.
-export default function BarcodeLabel({ barcode, categoryName }) {
+// A single printable label, matching the shop's physical label design:
+// KIDZ PLAZA (shop name) / item name / scannable barcode / MRP.
+// The barcode encodes barcode.code as-is (no asterisks — that would break the
+// scan), but displays it wrapped in asterisks underneath purely as text, to
+// match the shop's existing printed labels.
+export default function BarcodeLabel({ barcode }) {
   const svgRef = useRef(null);
 
   useEffect(() => {
     if (svgRef.current) {
       JsBarcode(svgRef.current, barcode.code, {
         format: 'CODE128',
-        height: 38,
-        width: 1.4,
-        fontSize: 12,
-        margin: 2,
+        height: 40,
+        width: 1.5,
+        fontSize: 13,
+        margin: 4,
         displayValue: true,
+        text: `*${barcode.code}*`,
       });
     }
   }, [barcode.code]);
@@ -31,17 +35,18 @@ export default function BarcodeLabel({ barcode, categoryName }) {
         p: 1,
         textAlign: 'center',
         bgcolor: '#fff',
+        color: '#000',
       }}
     >
-      <Typography variant="caption" fontWeight={700} noWrap display="block">
+      <Typography sx={{ fontSize: 14, fontWeight: 700, letterSpacing: 0.5 }}>
+        KIDZ PLAZA
+      </Typography>
+      <Typography sx={{ fontSize: 11 }} noWrap>
         {barcode.productName}
       </Typography>
-      <Typography variant="caption" display="block">
-        Size {barcode.size} · {formatCurrency(barcode.mrp)}
-      </Typography>
       <svg ref={svgRef} style={{ maxWidth: '100%' }} />
-      <Typography variant="caption" color="text.secondary" display="block" noWrap>
-        {categoryName ? `${categoryName} · ` : ''}#{barcode.serialNumber}
+      <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+        MRP :{formatNumber(barcode.mrp)}
       </Typography>
     </Box>
   );

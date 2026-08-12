@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
-  Box, Chip, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableHead,
-  TablePagination, TableRow, TextField,
+  Box, Chip, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell,
+  TableHead, TablePagination, TableRow, TextField, Tooltip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import PageHeader from 'src/components/PageHeader';
 import BillDetailDialog from 'src/sections/bills/BillDetailDialog';
+import BillReceiptDialog from 'src/sections/bills/BillReceiptDialog';
 import * as billsApi from 'src/api/bills.api.js';
 import { useDebounce } from 'src/hooks/useDebounce.js';
 import { formatCurrency, formatDate } from 'src/utils/format.js';
@@ -22,6 +24,7 @@ export default function BillsPage() {
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [detailId, setDetailId] = useState(null);
+  const [printId, setPrintId] = useState(null);
 
   const params = {
     search: debounced || undefined,
@@ -100,6 +103,7 @@ export default function BillsPage() {
               <TableCell align="right">Items</TableCell>
               <TableCell align="right">Total</TableCell>
               <TableCell>Payment</TableCell>
+              <TableCell align="right">Print</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -118,11 +122,21 @@ export default function BillsPage() {
                     sx={{ textTransform: 'capitalize' }}
                   />
                 </TableCell>
+                <TableCell align="right">
+                  <Tooltip title="Print bill">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); setPrintId(b._id); }}
+                    >
+                      <PrintRoundedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             ))}
             {!isLoading && items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   No bills found
                 </TableCell>
               </TableRow>
@@ -140,7 +154,12 @@ export default function BillsPage() {
         />
       </Paper>
 
-      <BillDetailDialog billId={detailId} onClose={() => setDetailId(null)} />
+      <BillDetailDialog
+        billId={detailId}
+        onClose={() => setDetailId(null)}
+        onPrint={(id) => { setDetailId(null); setPrintId(id); }}
+      />
+      <BillReceiptDialog billId={printId} onClose={() => setPrintId(null)} />
     </Box>
   );
 }
