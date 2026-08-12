@@ -13,6 +13,7 @@
     "windows": [
       {
         "title": "Kidz Plaza",
+        "url": "https://kp-frontend-alpha.vercel.app",
         "width": 1280,
         "height": 800,
         "minWidth": 960,

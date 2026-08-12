@@ -1,0 +1,48 @@
+name: Build desktop app
+
+# Trigger manually from the Actions tab ("Run workflow"), or by pushing a tag
+# like "app-v1.0.0". Builds a macOS .dmg and a Windows .msi/.exe from this
+# same repo, and attaches both to a GitHub Release.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "app-v*"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: ""
+          - platform: windows-latest
+            args: ""
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_API_URL: https://kp-backend-eyof.onrender.com/api
+        with:
+          tagName: app-v__VERSION__
+          releaseName: "Kidz Plaza Desktop v__VERSION__"
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
