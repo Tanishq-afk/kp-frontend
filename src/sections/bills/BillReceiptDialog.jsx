@@ -10,10 +10,12 @@ import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import { printReceipt } from 'src/utils/printReceipt.js';
 import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
 
-// A single label/value line in the slip.
+// A single label/value line in the slip. Bold for headings/key totals,
+// regular weight for ordinary data rows (matches the shop's real receipt —
+// heavy bold everywhere looked muddy on the thermal print head).
 function Row({ label, value, bold }) {
   return (
-    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: bold ? 800 : 600 }}>
+    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: bold ? 700 : 400 }}>
       <Box component="span">{label}</Box>
       <Box component="span" sx={{ textAlign: 'right' }}>{value}</Box>
     </Stack>
@@ -61,11 +63,11 @@ export default function BillReceiptDialog({ billId, onClose }) {
           <Box
             className="receipt-area"
             sx={{
-              fontFamily: "'Courier New', ui-monospace, monospace",
-              fontSize: 15,
-              fontWeight: 600,
-              lineHeight: 1.55,
-              maxWidth: 320,
+              fontFamily: "'Segoe UI', Arial, Helvetica, sans-serif",
+              fontSize: 17,
+              fontWeight: 400,
+              lineHeight: 1.5,
+              maxWidth: 340,
               mx: 'auto',
               color: 'common.black',
               bgcolor: 'common.white',
@@ -73,7 +75,7 @@ export default function BillReceiptDialog({ billId, onClose }) {
             }}
           >
             <ReceiptLogo />
-            <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, fontSize: 13 }}>Piplod</Typography>
+            <Typography component="div" sx={{ textAlign: 'center', fontWeight: 600, fontSize: 15 }}>Piplod</Typography>
             <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, mt: 0.5 }}>
               TAX INVOICE
             </Typography>
@@ -85,23 +87,23 @@ export default function BillReceiptDialog({ billId, onClose }) {
             {b.customerPhone && <Row label="Contact No" value={b.customerPhone} />}
 
             <Rule />
-            <Stack direction="row" spacing={1} sx={{ fontWeight: 800 }}>
+            <Stack direction="row" spacing={1} sx={{ fontWeight: 700 }}>
               <Box component="span" sx={{ width: 22 }}>Sr.</Box>
               <Box component="span" sx={{ flex: 1 }}>Item Name</Box>
               <Box component="span" sx={{ width: 26, textAlign: 'right' }}>Qty</Box>
-              <Box component="span" sx={{ width: 60, textAlign: 'right' }}>Price</Box>
+              <Box component="span" sx={{ width: 66, textAlign: 'right' }}>Price</Box>
             </Stack>
             <Rule />
             {(b.items || []).map((it, i) => (
               // eslint-disable-next-line react/no-array-index-key
-              <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.5 }}>
+              <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.5, fontWeight: 400 }}>
                 <Box component="span" sx={{ width: 22 }}>{i + 1}</Box>
                 <Box component="span" sx={{ flex: 1 }}>
                   {it.productName}
                   {it.size && it.size !== 'Free Size' ? ` (${it.size})` : ''}
                 </Box>
                 <Box component="span" sx={{ width: 26, textAlign: 'right' }}>1</Box>
-                <Box component="span" sx={{ width: 60, textAlign: 'right' }}>{formatCurrency(it.mrp)}</Box>
+                <Box component="span" sx={{ width: 66, textAlign: 'right' }}>{formatCurrency(it.mrp)}</Box>
               </Stack>
             ))}
             {(!b.items || b.items.length === 0) && <Row label="—" value="No item detail" />}
@@ -127,26 +129,26 @@ export default function BillReceiptDialog({ billId, onClose }) {
             {b.remarks && (
               <>
                 <Rule />
-                <Typography component="div" sx={{ fontSize: 13, fontWeight: 600 }}>
+                <Typography component="div" sx={{ fontSize: 15, fontWeight: 400 }}>
                   Remarks: {b.remarks}
                 </Typography>
               </>
             )}
 
             <Rule />
-            <Typography component="div" sx={{ fontWeight: 800 }}>Terms and Conditions:</Typography>
+            <Typography component="div" sx={{ fontWeight: 700 }}>Terms and Conditions:</Typography>
             {TERMS.map((t, i) => (
               // eslint-disable-next-line react/no-array-index-key
-              <Typography key={i} component="div" sx={{ fontSize: 13 }}>
+              <Typography key={i} component="div" sx={{ fontSize: 15, fontWeight: 400 }}>
                 {i + 1}) {t}
               </Typography>
             ))}
 
             <Rule />
-            <Typography component="div" sx={{ textAlign: 'center', fontSize: 13, fontWeight: 700 }}>
+            <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
               Thank you for shopping with us!
             </Typography>
-            <Typography component="div" sx={{ textAlign: 'center', fontSize: 13, fontWeight: 700 }}>
+            <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
               {'*'.repeat(24)}
             </Typography>
           </Box>

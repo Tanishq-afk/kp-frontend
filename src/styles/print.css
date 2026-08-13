@@ -45,8 +45,9 @@
     padding: 4mm;
     color: #000;
     background: #fff;
-    font-family: 'Courier New', ui-monospace, monospace;
-    font-size: 11px;
-    line-height: 1.45;
+    /* font-family/size/weight intentionally NOT set here — they come from the
+       component's own styles (BillReceiptDialog / DaySummaryReceiptDialog),
+       so there's one source of truth instead of this silently overriding it
+       at print time regardless of what the component says. */
   }
 }
