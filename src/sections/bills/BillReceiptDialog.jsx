@@ -10,12 +10,14 @@ import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import { printReceipt } from 'src/utils/printReceipt.js';
 import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
 
-// A single label/value line in the slip. Bold for headings/key totals,
-// regular weight for ordinary data rows (matches the shop's real receipt —
-// heavy bold everywhere looked muddy on the thermal print head).
-function Row({ label, value, bold }) {
+// A single label/value line in the slip. `bold` for headings/key totals,
+// `medium` for a slight emphasis (e.g. customer details), plain regular
+// weight otherwise (matches the shop's real receipt — heavy bold everywhere
+// looked muddy on the thermal print head).
+function Row({ label, value, bold, medium }) {
+  const weight = bold ? 700 : medium ? 600 : 400;
   return (
-    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: bold ? 700 : 400 }}>
+    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: weight }}>
       <Box component="span">{label}</Box>
       <Box component="span" sx={{ textAlign: 'right' }}>{value}</Box>
     </Stack>
@@ -83,8 +85,8 @@ export default function BillReceiptDialog({ billId, onClose }) {
             <Rule />
             <Row label="Bill No" value={b.billNumber} bold />
             <Row label="Date & Time" value={formatDateTime(b.createdAt)} />
-            <Row label="Customer" value={b.customerName || 'Walk-in'} />
-            {b.customerPhone && <Row label="Contact No" value={b.customerPhone} />}
+            <Row label="Customer" value={b.customerName || 'Walk-in'} medium />
+            {b.customerPhone && <Row label="Contact No" value={b.customerPhone} medium />}
 
             <Rule />
             <Stack direction="row" spacing={1} sx={{ fontWeight: 700, fontSize: 18 }}>
