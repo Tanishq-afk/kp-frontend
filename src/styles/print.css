@@ -1,3 +1,15 @@
+/* Page size for the receipt printer (Everycom 80-series, 80mm thermal roll).
+   Without this, the browser prints onto its default page size (Letter/A4-ish)
+   and auto-scales/centers the narrower 80mm content to fit — which is exactly
+   the "correct content, but centered with blank space on the sides" symptom.
+   `auto` height lets it run the natural length of a continuous roll instead
+   of being cut to a fixed page height. Zero margin so the printable area
+   starts right at the paper edge instead of being inset further. */
+@page {
+  size: 80mm auto;
+  margin: 0;
+}
+
 /* When printing, hide everything except the label grid inside the print dialog. */
 @media print {
   body * {
