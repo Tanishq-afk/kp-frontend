@@ -8,6 +8,7 @@ import * as billsApi from 'src/api/bills.api.js';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
 import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import { printReceipt } from 'src/utils/printReceipt.js';
+import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
 
 // A single label/value line in the slip.
 function Row({ label, value, bold }) {
@@ -63,9 +64,7 @@ export default function BillReceiptDialog({ billId, onClose }) {
               p: 2,
             }}
           >
-            <Typography component="div" sx={{ textAlign: 'center', fontWeight: 800, fontSize: 19 }}>
-              KIDZ PLAZA
-            </Typography>
+            <ReceiptLogo />
             <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, fontSize: 13 }}>Piplod</Typography>
             <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, mt: 0.5 }}>
               TAX INVOICE

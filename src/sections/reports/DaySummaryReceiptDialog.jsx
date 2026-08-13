@@ -7,6 +7,7 @@ import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { formatCurrency, formatDate } from 'src/utils/format.js';
 import { PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import { printReceipt } from 'src/utils/printReceipt.js';
+import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
 
 // A single label/value line in the slip.
 function Row({ label, value, bold }) {
@@ -59,9 +60,7 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
             p: 2,
           }}
         >
-          <Typography component="div" sx={{ textAlign: 'center', fontWeight: 800, fontSize: 19 }}>
-            KIDZ PLAZA
-          </Typography>
+          <ReceiptLogo />
           <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, fontSize: 13 }}>Piplod</Typography>
           <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, mt: 0.5 }}>
             DAY SUMMARY
