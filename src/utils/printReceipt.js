@@ -9,7 +9,7 @@
 // this deterministic regardless of engine support for `auto`.
 const PX_PER_MM = 96 / 25.4;
 const FALLBACK_HEIGHT_MM = 200;
-const SAFETY_MARGIN_MM = 5; // small buffer so the last line never clips
+const SAFETY_MARGIN_MM = 2; // small buffer so the last line never clips
 
 export const printReceipt = (className = 'receipt-area') => {
   const el = document.querySelector(`.${className}`);

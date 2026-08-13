@@ -11,7 +11,7 @@ import { printReceipt } from 'src/utils/printReceipt.js';
 // A single label/value line in the slip.
 function Row({ label, value, bold }) {
   return (
-    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: bold ? 700 : 400 }}>
+    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: bold ? 800 : 600 }}>
       <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{label}</Box>
       <Box component="span" sx={{ textAlign: 'right' }}>{value}</Box>
     </Stack>
@@ -22,7 +22,7 @@ const Rule = () => <Box sx={{ borderTop: '1px dashed #000', my: 0.75 }} />;
 
 function Heading({ children }) {
   return (
-    <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, letterSpacing: 1, mt: 0.5 }}>
+    <Typography component="div" sx={{ textAlign: 'center', fontWeight: 800, letterSpacing: 1, mt: 0.5 }}>
       {children}
     </Typography>
   );
@@ -49,8 +49,9 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
           className="receipt-area"
           sx={{
             fontFamily: "'Courier New', ui-monospace, monospace",
-            fontSize: 13,
-            lineHeight: 1.5,
+            fontSize: 15,
+            fontWeight: 600,
+            lineHeight: 1.55,
             maxWidth: 320,
             mx: 'auto',
             color: 'common.black',
@@ -58,14 +59,14 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
             p: 2,
           }}
         >
-          <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, fontSize: 16 }}>
+          <Typography component="div" sx={{ textAlign: 'center', fontWeight: 800, fontSize: 19 }}>
             KIDZ PLAZA
           </Typography>
-          <Typography component="div" sx={{ textAlign: 'center', fontSize: 12 }}>Piplod</Typography>
-          <Typography component="div" sx={{ textAlign: 'center', mt: 0.5 }}>
+          <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, fontSize: 13 }}>Piplod</Typography>
+          <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, mt: 0.5 }}>
             DAY SUMMARY
           </Typography>
-          <Typography component="div" sx={{ textAlign: 'center' }}>
+          <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700 }}>
             {formatDate(summary.date)}
           </Typography>
 
@@ -133,11 +134,11 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
           )}
 
           <Rule />
-          <Typography component="div" sx={{ textAlign: 'center', fontSize: 11, mt: 0.5 }}>
+          <Typography component="div" sx={{ textAlign: 'center', fontSize: 13, fontWeight: 700, mt: 0.5 }}>
             Printed {dayjs().format('DD MMM YYYY, hh:mm A')}
             {user?.name ? ` by ${user.name}` : ''}
           </Typography>
-          <Typography component="div" sx={{ textAlign: 'center', fontSize: 11 }}>
+          <Typography component="div" sx={{ textAlign: 'center', fontSize: 13, fontWeight: 700 }}>
             {'*'.repeat(24)}
           </Typography>
         </Box>

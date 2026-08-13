@@ -12,7 +12,7 @@ import { printReceipt } from 'src/utils/printReceipt.js';
 // A single label/value line in the slip.
 function Row({ label, value, bold }) {
   return (
-    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: bold ? 700 : 400 }}>
+    <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: bold ? 800 : 600 }}>
       <Box component="span">{label}</Box>
       <Box component="span" sx={{ textAlign: 'right' }}>{value}</Box>
     </Stack>
@@ -53,8 +53,9 @@ export default function BillReceiptDialog({ billId, onClose }) {
             className="receipt-area"
             sx={{
               fontFamily: "'Courier New', ui-monospace, monospace",
-              fontSize: 13,
-              lineHeight: 1.5,
+              fontSize: 15,
+              fontWeight: 600,
+              lineHeight: 1.55,
               maxWidth: 320,
               mx: 'auto',
               color: 'common.black',
@@ -62,11 +63,11 @@ export default function BillReceiptDialog({ billId, onClose }) {
               p: 2,
             }}
           >
-            <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, fontSize: 16 }}>
+            <Typography component="div" sx={{ textAlign: 'center', fontWeight: 800, fontSize: 19 }}>
               KIDZ PLAZA
             </Typography>
-            <Typography component="div" sx={{ textAlign: 'center', fontSize: 12 }}>Piplod</Typography>
-            <Typography component="div" sx={{ textAlign: 'center', mt: 0.5 }}>
+            <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, fontSize: 13 }}>Piplod</Typography>
+            <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700, mt: 0.5 }}>
               TAX INVOICE
             </Typography>
 
@@ -108,17 +109,17 @@ export default function BillReceiptDialog({ billId, onClose }) {
             {b.remarks && (
               <>
                 <Rule />
-                <Typography component="div" sx={{ fontSize: 12 }}>
+                <Typography component="div" sx={{ fontSize: 13, fontWeight: 600 }}>
                   Remarks: {b.remarks}
                 </Typography>
               </>
             )}
 
             <Rule />
-            <Typography component="div" sx={{ textAlign: 'center', fontSize: 11 }}>
+            <Typography component="div" sx={{ textAlign: 'center', fontSize: 13, fontWeight: 700 }}>
               Thank you for shopping with us!
             </Typography>
-            <Typography component="div" sx={{ textAlign: 'center', fontSize: 11 }}>
+            <Typography component="div" sx={{ textAlign: 'center', fontSize: 13, fontWeight: 700 }}>
               {'*'.repeat(24)}
             </Typography>
           </Box>
