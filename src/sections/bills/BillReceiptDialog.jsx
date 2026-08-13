@@ -87,23 +87,23 @@ export default function BillReceiptDialog({ billId, onClose }) {
             {b.customerPhone && <Row label="Contact No" value={b.customerPhone} />}
 
             <Rule />
-            <Stack direction="row" spacing={1} sx={{ fontWeight: 700 }}>
-              <Box component="span" sx={{ width: 22 }}>Sr.</Box>
+            <Stack direction="row" spacing={1} sx={{ fontWeight: 700, fontSize: 19 }}>
+              <Box component="span" sx={{ width: 24 }}>Sr.</Box>
               <Box component="span" sx={{ flex: 1 }}>Item Name</Box>
-              <Box component="span" sx={{ width: 26, textAlign: 'right' }}>Qty</Box>
-              <Box component="span" sx={{ width: 66, textAlign: 'right' }}>Price</Box>
+              <Box component="span" sx={{ width: 30, textAlign: 'right' }}>Qty</Box>
+              <Box component="span" sx={{ width: 76, textAlign: 'right' }}>Price</Box>
             </Stack>
             <Rule />
             {(b.items || []).map((it, i) => (
               // eslint-disable-next-line react/no-array-index-key
-              <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.5, fontWeight: 400 }}>
-                <Box component="span" sx={{ width: 22 }}>{i + 1}</Box>
+              <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.75, fontWeight: 500, fontSize: 19 }}>
+                <Box component="span" sx={{ width: 24 }}>{i + 1}</Box>
                 <Box component="span" sx={{ flex: 1 }}>
                   {it.productName}
                   {it.size && it.size !== 'Free Size' ? ` (${it.size})` : ''}
                 </Box>
-                <Box component="span" sx={{ width: 26, textAlign: 'right' }}>1</Box>
-                <Box component="span" sx={{ width: 66, textAlign: 'right' }}>{formatCurrency(it.mrp)}</Box>
+                <Box component="span" sx={{ width: 30, textAlign: 'right' }}>1</Box>
+                <Box component="span" sx={{ width: 76, textAlign: 'right' }}>{formatCurrency(it.mrp)}</Box>
               </Stack>
             ))}
             {(!b.items || b.items.length === 0) && <Row label="—" value="No item detail" />}
