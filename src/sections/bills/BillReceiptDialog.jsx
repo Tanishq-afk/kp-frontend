@@ -7,6 +7,7 @@ import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import * as billsApi from 'src/api/bills.api.js';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
 import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
+import { printReceipt } from 'src/utils/printReceipt.js';
 
 // A single label/value line in the slip.
 function Row({ label, value, bold }) {
@@ -126,7 +127,7 @@ export default function BillReceiptDialog({ billId, onClose }) {
 
       <DialogActions className="no-print" sx={{ p: 2 }}>
         <Button onClick={onClose}>Close</Button>
-        <Button variant="contained" startIcon={<PrintRoundedIcon />} disabled={!b} onClick={() => window.print()}>
+        <Button variant="contained" startIcon={<PrintRoundedIcon />} disabled={!b} onClick={() => printReceipt()}>
           Print
         </Button>
       </DialogActions>

@@ -6,6 +6,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { formatCurrency, formatDate } from 'src/utils/format.js';
 import { PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
+import { printReceipt } from 'src/utils/printReceipt.js';
 
 // A single label/value line in the slip.
 function Row({ label, value, bold }) {
@@ -144,7 +145,7 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
 
       <DialogActions className="no-print" sx={{ p: 2 }}>
         <Button onClick={onClose}>Close</Button>
-        <Button variant="contained" startIcon={<PrintRoundedIcon />} onClick={() => window.print()}>
+        <Button variant="contained" startIcon={<PrintRoundedIcon />} onClick={() => printReceipt()}>
           Print
         </Button>
       </DialogActions>
