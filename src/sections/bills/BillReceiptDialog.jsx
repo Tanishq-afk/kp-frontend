@@ -87,7 +87,7 @@ export default function BillReceiptDialog({ billId, onClose }) {
             {b.customerPhone && <Row label="Contact No" value={b.customerPhone} />}
 
             <Rule />
-            <Stack direction="row" spacing={1} sx={{ fontWeight: 700, fontSize: 19 }}>
+            <Stack direction="row" spacing={1} sx={{ fontWeight: 700, fontSize: 18 }}>
               <Box component="span" sx={{ width: 24 }}>Sr.</Box>
               <Box component="span" sx={{ flex: 1 }}>Item Name</Box>
               <Box component="span" sx={{ width: 30, textAlign: 'right' }}>Qty</Box>
@@ -96,7 +96,7 @@ export default function BillReceiptDialog({ billId, onClose }) {
             <Rule />
             {(b.items || []).map((it, i) => (
               // eslint-disable-next-line react/no-array-index-key
-              <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.75, fontWeight: 500, fontSize: 19 }}>
+              <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.75, fontWeight: 500, fontSize: 18 }}>
                 <Box component="span" sx={{ width: 24 }}>{i + 1}</Box>
                 <Box component="span" sx={{ flex: 1 }}>
                   {it.productName}
