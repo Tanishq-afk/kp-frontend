@@ -22,6 +22,14 @@ function Row({ label, value, bold }) {
 
 const Rule = () => <Box sx={{ borderTop: '1px dashed #000', my: 0.75 }} />;
 
+// The shop's standard return/exchange policy, printed on every bill.
+const TERMS = [
+  'No Return/No Exchange for Discounted Merchandise.',
+  'Exchange within 3 Days from the Sale.',
+  'No Cash Refund.',
+  'M.R.P. inclusive of all Taxes.',
+];
+
 // Printable invoice for a single bill (thermal-receipt style), matching the
 // look of DaySummaryReceiptDialog. Reachable from the bills list (row print
 // icon) or from BillDetailDialog ("Print" button).
@@ -71,27 +79,38 @@ export default function BillReceiptDialog({ billId, onClose }) {
             </Typography>
 
             <Rule />
-            <Row label="Invoice" value={b.billNumber} bold />
-            <Row label="Date" value={formatDateTime(b.createdAt)} />
+            <Row label="Bill No" value={b.billNumber} bold />
+            <Row label="Date & Time" value={formatDateTime(b.createdAt)} />
             <Row label="Customer" value={b.customerName || 'Walk-in'} />
-            {b.customerPhone && <Row label="Phone" value={b.customerPhone} />}
+            {b.customerPhone && <Row label="Contact No" value={b.customerPhone} />}
 
+            <Rule />
+            <Stack direction="row" spacing={1} sx={{ fontWeight: 800 }}>
+              <Box component="span" sx={{ width: 22 }}>Sr.</Box>
+              <Box component="span" sx={{ flex: 1 }}>Item Name</Box>
+              <Box component="span" sx={{ width: 26, textAlign: 'right' }}>Qty</Box>
+              <Box component="span" sx={{ width: 60, textAlign: 'right' }}>Price</Box>
+            </Stack>
             <Rule />
             {(b.items || []).map((it, i) => (
               // eslint-disable-next-line react/no-array-index-key
-              <Row
-                key={i}
-                label={`${it.productName}${it.size && it.size !== 'Free Size' ? ` (${it.size})` : ''}`}
-                value={formatCurrency(it.mrp)}
-              />
+              <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.5 }}>
+                <Box component="span" sx={{ width: 22 }}>{i + 1}</Box>
+                <Box component="span" sx={{ flex: 1 }}>
+                  {it.productName}
+                  {it.size && it.size !== 'Free Size' ? ` (${it.size})` : ''}
+                </Box>
+                <Box component="span" sx={{ width: 26, textAlign: 'right' }}>1</Box>
+                <Box component="span" sx={{ width: 60, textAlign: 'right' }}>{formatCurrency(it.mrp)}</Box>
+              </Stack>
             ))}
             {(!b.items || b.items.length === 0) && <Row label="—" value="No item detail" />}
 
             <Rule />
-            <Row label="Subtotal" value={formatCurrency(b.subtotal)} />
+            <Row label="Total" value={formatCurrency(b.subtotal)} />
             <Row label="Discount" value={discountLabel} />
-            {b.tax > 0 && <Row label="Tax" value={formatCurrency(b.tax)} />}
-            <Row label="Total" value={formatCurrency(b.total)} bold />
+            <Row label="Additional Charges" value={formatCurrency(b.tax)} />
+            <Row label="Final Amount" value={formatCurrency(b.total)} bold />
 
             <Rule />
             {(b.payments || []).map((p, i) => (
@@ -113,6 +132,15 @@ export default function BillReceiptDialog({ billId, onClose }) {
                 </Typography>
               </>
             )}
+
+            <Rule />
+            <Typography component="div" sx={{ fontWeight: 800 }}>Terms and Conditions:</Typography>
+            {TERMS.map((t, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <Typography key={i} component="div" sx={{ fontSize: 13 }}>
+                {i + 1}) {t}
+              </Typography>
+            ))}
 
             <Rule />
             <Typography component="div" sx={{ textAlign: 'center', fontSize: 13, fontWeight: 700 }}>
