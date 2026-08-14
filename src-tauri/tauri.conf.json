@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Kidz Plaza",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "identifier": "com.kidzplaza.pos",
   "build": {
     "frontendDist": "../dist",
@@ -19,7 +19,8 @@
         "minWidth": 960,
         "minHeight": 640,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --kiosk-printing"
       }
     ],
     "security": {
