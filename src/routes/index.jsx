@@ -13,6 +13,7 @@ const LoginPage = lazy(() => import('src/pages/Login'));
 const BillingPage = lazy(() => import('src/pages/Billing'));
 const ReturnsPage = lazy(() => import('src/pages/Returns'));
 const DashboardPage = lazy(() => import('src/pages/Dashboard'));
+const StockPage = lazy(() => import('src/pages/Stock'));
 const CategoriesPage = lazy(() => import('src/pages/Categories'));
 const ProductsPage = lazy(() => import('src/pages/Products'));
 const ProductFormPage = lazy(() => import('src/pages/Products/form.jsx'));
@@ -20,6 +21,7 @@ const PrintQueuePage = lazy(() => import('src/pages/PrintQueue'));
 const CustomersPage = lazy(() => import('src/pages/Customers'));
 const BillsPage = lazy(() => import('src/pages/Bills'));
 const DaySummaryPage = lazy(() => import('src/pages/DaySummary'));
+const PrintBillPage = lazy(() => import('src/pages/PrintBill'));
 
 // Helpers to keep the route table readable.
 const adminOnly = (el) => <RoleRoute allow={[ROLE.ADMIN]}>{el}</RoleRoute>;
@@ -31,6 +33,11 @@ export const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [{ path: '/login', element: <LoginPage /> }],
   },
+  // Standalone, chrome-less — loaded only by the hidden silent-print window
+  // (utils/printBillWindow.js). Manages its own auth via a URL token instead
+  // of the normal cookie/localStorage flow, so it's deliberately outside
+  // ProtectedRoute/AppLayout.
+  { path: 'print/bill/:id', element: <PrintBillPage /> },
   {
     element: <ProtectedRoute />,
     children: [
@@ -41,6 +48,7 @@ export const router = createBrowserRouter([
 
           // Superadmin
           { path: 'dashboard', element: superadminOnly(<DashboardPage />) },
+          { path: 'stock', element: superadminOnly(<StockPage />) },
 
           // Admin — inventory & POS
           { path: 'billing', element: adminOnly(<BillingPage />) },

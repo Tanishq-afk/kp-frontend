@@ -24,7 +24,7 @@ export default function ProductFormPage() {
 
   const {
     register, handleSubmit, control, reset, formState: { errors },
-  } = useForm({ defaultValues: { name: '', articleNumber: '', category: '', costPrice: '', mrp: '' } });
+  } = useForm({ defaultValues: { name: '', category: '', costPrice: '', mrp: '' } });
 
   const catsQuery = useQuery({
     queryKey: ['categories', 'active'],
@@ -42,7 +42,6 @@ export default function ProductFormPage() {
     if (editing && p) {
       reset({
         name: p.name,
-        articleNumber: p.articleNumber,
         category: p.category?._id || p.category,
         costPrice: p.costPrice,
         mrp: p.mrp,
@@ -70,7 +69,6 @@ export default function ProductFormPage() {
   const onSubmit = (values) => {
     const base = {
       name: values.name,
-      articleNumber: values.articleNumber,
       category: values.category,
       costPrice: Number(values.costPrice),
       mrp: Number(values.mrp),
@@ -122,9 +120,9 @@ export default function ProductFormPage() {
                 <TextField
                   label="Article number"
                   fullWidth
-                  error={Boolean(errors.articleNumber)}
-                  helperText={errors.articleNumber?.message}
-                  {...register('articleNumber', { required: 'Required' })}
+                  disabled
+                  value={editing ? (productQuery.data?.data?.articleNumber ?? '') : 'Assigned automatically'}
+                  helperText={editing ? 'System-assigned, not editable' : "Assigned once you save — you don't enter this"}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>

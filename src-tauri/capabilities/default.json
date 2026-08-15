@@ -5,7 +5,11 @@
   "windows": [
     "main"
   ],
+  "remote": {
+    "urls": ["https://kp-frontend-alpha.vercel.app"]
+  },
   "permissions": [
-    "core:default"
+    "core:default",
+    "core:webview:allow-create-webview-window"
   ]
 }

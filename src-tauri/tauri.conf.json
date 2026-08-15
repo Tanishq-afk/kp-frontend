@@ -19,8 +19,7 @@
         "minWidth": 960,
         "minHeight": 640,
         "resizable": true,
-        "fullscreen": false,
-        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --kiosk-printing"
+        "fullscreen": false
       }
     ],
     "security": {

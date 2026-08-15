@@ -21,9 +21,13 @@ export const printReceipt = (className = 'receipt-area') => {
     styleTag.id = 'dynamic-receipt-page-size';
     document.head.appendChild(styleTag);
   }
-  // Placed after print.css in the DOM, so this wins the cascade and
-  // overrides the static `80mm auto` fallback there.
-  styleTag.textContent = `@page { size: 80mm ${heightMm}mm; margin: 0; }`;
+  // Must target the same NAMED page print.css assigns .receipt-area to
+  // ("receipt") — an unnamed @page here would no longer apply to it now that
+  // it's explicitly bound to a named page (see print.css for why: the label
+  // printer needs its own page size, so this can't be the single default
+  // page anymore). Placed after print.css in the DOM, so this wins the
+  // cascade and overrides the static `80mm auto` fallback there.
+  styleTag.textContent = `@page receipt { size: 80mm ${heightMm}mm; margin: 0; }`;
 
   window.print();
 };

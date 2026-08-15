@@ -1,10 +1,23 @@
-/* Page size for the receipt printer (Everycom 80-series, 80mm thermal roll).
-   Without this, the browser prints onto its default page size (Letter/A4-ish)
-   and auto-scales/centers the narrower 80mm content to fit — which is exactly
-   the "correct content, but centered with blank space on the sides" symptom.
-   `auto` height lets it run the natural length of a continuous roll instead
-   of being cut to a fixed page height. Zero margin so the printable area
-   starts right at the paper edge instead of being inset further. */
+/* Two different printers, two different page sizes — named pages so each
+   print type gets its own, instead of one @page forcing everything onto the
+   same size (that was the bug: barcode labels were being forced onto the
+   receipt printer's 80mm page instead of the label printer's real size).
+
+   - "receipt": Everycom 80-series, 80mm thermal roll, bills + day-summary.
+     `auto` height runs the natural length of a continuous roll.
+   - "label": Sunphor SUP-LP58A barcode printer, configured for 48mm x 210mm
+     (203dpi) in its own driver settings — must match exactly or the page
+     gets forced onto whatever the browser's default assumes instead.
+   Zero margin on both so the printable area starts right at the paper edge. */
+@page receipt {
+  size: 80mm auto;
+  margin: 0;
+}
+@page label {
+  size: 48mm 210mm;
+  margin: 0;
+}
+/* Fallback for anything printed without an explicit page assignment. */
 @page {
   size: 80mm auto;
   margin: 0;
@@ -20,6 +33,7 @@
     visibility: visible;
   }
   .print-area {
+    page: label;
     position: absolute;
     left: 0;
     top: 0;
@@ -38,6 +52,7 @@
     visibility: visible;
   }
   .receipt-area {
+    page: receipt;
     position: absolute;
     left: 0;
     top: 0;

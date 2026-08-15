@@ -144,18 +144,31 @@ export default function DashboardPage() {
             {categoryRows.length === 0 ? (
               <NoData />
             ) : (
-              <PieChart
-                height={300}
-                series={[{
-                  paddingAngle: 1,
-                  data: categoryRows.slice(0, 8).map((c, i) => ({
-                    id: i,
-                    value: c.revenue,
-                    label: c.categoryName || 'Uncategorized',
-                    color: PIE_COLORS[i % PIE_COLORS.length],
-                  })),
-                }]}
-              />
+              <Box sx={{ mt: 3 }}>
+                <PieChart
+                  height={400}
+                  series={[{
+                    paddingAngle: 1,
+                    cx: '50%',
+                    cy: '42%',
+                    data: categoryRows.slice(0, 8).map((c, i) => ({
+                      id: i,
+                      value: c.revenue,
+                      label: c.categoryName || 'Uncategorized',
+                      color: PIE_COLORS[i % PIE_COLORS.length],
+                    })),
+                  }]}
+                  slotProps={{
+                    legend: {
+                      direction: 'row',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      itemGap: 12,
+                      labelStyle: { fontSize: 12 },
+                    },
+                  }}
+                  margin={{ top: 40, bottom: 90, left: 10, right: 10 }}
+                />
+              </Box>
             )}
           </ChartCard>
         </Grid>
