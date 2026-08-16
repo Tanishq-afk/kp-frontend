@@ -27,4 +27,9 @@ tauri-plugin-log = "2"
 # Raw printer access (bypasses the browser print engine) — Windows only,
 # see src/printing.rs.
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.58", features = ["Win32_Graphics_Printing", "Win32_Foundation"] }
+# windows-sys (not `windows`): raw, unwrapped FFI bindings that mirror the
+# Win32 C headers almost verbatim (plain fn signatures returning BOOL/u32,
+# plain *const/*mut pointers, no Result-wrapping, no generic Param<T>
+# trickery). Picked specifically to avoid version-sensitive ergonomic-wrapper
+# behavior we can't test-compile locally on Windows.
+windows-sys = { version = "0.61", features = ["Win32_Graphics_Printing", "Win32_Foundation"] }

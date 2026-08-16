@@ -4,69 +4,106 @@
 // POS software drives thermal printers: ESC/POS command bytes in, printer
 // interprets them directly, no HTML/CSS rendering involved.
 //
-// Windows-only for now (Everycom + Sunphor are both Windows-connected USB
+// Windows-only for now (Everycom + Sunphor/TSC are both Windows-connected USB
 // thermal printers). Phase 1: just get raw bytes to a named printer and list
 // available printers, so this can be tested against the real hardware before
 // building the ESC/POS content-formatting layer on top of it.
+//
+// Uses windows-sys (raw FFI bindings, mirror the Win32 C headers almost
+// verbatim) rather than the higher-level `windows` crate — plain fn
+// signatures, plain pointers, explicit BOOL checks. No Result-wrapping or
+// generic Param<T> ergonomics to get subtly wrong against a pinned version.
 
 #[cfg(target_os = "windows")]
 mod imp {
     use std::ffi::c_void;
-    use windows::core::{PCWSTR, PWSTR};
-    use windows::Win32::Graphics::Printing::{
+    use std::ptr;
+    use windows_sys::Win32::Foundation::GetLastError;
+    use windows_sys::Win32::Graphics::Printing::{
         ClosePrinter, EndDocPrinter, EndPagePrinter, EnumPrintersW, OpenPrinterW,
-        StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W, PRINTER_ENUM_CONNECTIONS,
-        PRINTER_ENUM_LOCAL, PRINTER_HANDLE, PRINTER_INFO_2W,
+        StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W, PRINTER_ACCESS_USE,
+        PRINTER_DEFAULTSW, PRINTER_ENUM_CONNECTIONS, PRINTER_ENUM_LOCAL, PRINTER_HANDLE,
+        PRINTER_INFO_4W,
     };
 
     fn wide(s: &str) -> Vec<u16> {
         s.encode_utf16().chain(std::iter::once(0)).collect()
     }
 
+    unsafe fn wide_ptr_to_string(p: *mut u16) -> String {
+        let mut len = 0isize;
+        while *p.offset(len) != 0 {
+            len += 1;
+        }
+        String::from_utf16_lossy(std::slice::from_raw_parts(p, len as usize))
+    }
+
+    fn last_error(context: &str) -> String {
+        let code = unsafe { GetLastError() };
+        format!("{context} (GetLastError = {code})")
+    }
+
     pub fn print_raw(printer_name: &str, data: &[u8]) -> Result<(), String> {
         unsafe {
             let printer_wide = wide(printer_name);
-            let mut handle = PRINTER_HANDLE::default();
-            OpenPrinterW(PCWSTR(printer_wide.as_ptr()), &mut handle, None)
-                .map_err(|e| format!("OpenPrinter(\"{printer_name}\") failed: {e}"))?;
-
-            let mut doc_name = wide("Kidz Plaza");
             let mut datatype = wide("RAW");
-            let doc_info = DOC_INFO_1W {
-                pDocName: PWSTR(doc_name.as_mut_ptr()),
-                pOutputFile: PWSTR::null(),
-                pDatatype: PWSTR(datatype.as_mut_ptr()),
+            let mut defaults = PRINTER_DEFAULTSW {
+                pDatatype: datatype.as_mut_ptr(),
+                pDevMode: ptr::null_mut(),
+                DesiredAccess: PRINTER_ACCESS_USE,
             };
 
-            let job_id = StartDocPrinterW(handle, 1, &doc_info as *const DOC_INFO_1W as *const _);
-            if job_id == 0 {
-                let _ = ClosePrinter(handle);
-                return Err("StartDocPrinter returned 0 (job not started)".into());
+            let mut handle: PRINTER_HANDLE = PRINTER_HANDLE {
+                Value: ptr::null_mut(),
+            };
+            if OpenPrinterW(printer_wide.as_ptr(), &mut handle, &mut defaults) == 0 {
+                return Err(last_error(&format!(
+                    "OpenPrinter(\"{printer_name}\") failed"
+                )));
             }
 
-            // StartPagePrinter/EndPagePrinter/EndDocPrinter/ClosePrinter/WritePrinter
-            // return BOOL, not Result — `.ok()` is windows-rs's standard BOOL ->
-            // Result<(), windows::core::Error> conversion (false = pull last error).
-            if let Err(e) = StartPagePrinter(handle).ok() {
-                let _ = EndDocPrinter(handle);
-                let _ = ClosePrinter(handle);
-                return Err(format!("StartPagePrinter failed: {e}"));
+            let mut doc_name = wide("Kidz Plaza");
+            let mut doc_datatype = wide("RAW");
+            let doc_info = DOC_INFO_1W {
+                pDocName: doc_name.as_mut_ptr(),
+                pOutputFile: ptr::null_mut(),
+                pDatatype: doc_datatype.as_mut_ptr(),
+            };
+
+            let job_id = StartDocPrinterW(handle, 1, &doc_info as *const DOC_INFO_1W);
+            if job_id == 0 {
+                let err = last_error("StartDocPrinter failed");
+                ClosePrinter(handle);
+                return Err(err);
+            }
+
+            if StartPagePrinter(handle) == 0 {
+                let err = last_error("StartPagePrinter failed");
+                EndDocPrinter(handle);
+                ClosePrinter(handle);
+                return Err(err);
             }
 
             let mut written: u32 = 0;
-            let write_result = WritePrinter(
+            let write_ok = WritePrinter(
                 handle,
                 data.as_ptr() as *const c_void,
                 data.len() as u32,
                 &mut written,
-            )
-            .ok();
+            );
+            let write_err = if write_ok == 0 {
+                Some(last_error("WritePrinter failed"))
+            } else {
+                None
+            };
 
-            let _ = EndPagePrinter(handle);
-            let _ = EndDocPrinter(handle);
-            let _ = ClosePrinter(handle);
+            EndPagePrinter(handle);
+            EndDocPrinter(handle);
+            ClosePrinter(handle);
 
-            write_result.map_err(|e| format!("WritePrinter failed: {e}"))?;
+            if let Some(e) = write_err {
+                return Err(e);
+            }
             if written as usize != data.len() {
                 return Err(format!(
                     "WritePrinter only wrote {written} of {} bytes",
@@ -84,30 +121,41 @@ mod imp {
             let mut returned: u32 = 0;
 
             // Sizing call: expected to "fail" (insufficient buffer) but fills `needed`.
-            let _ = EnumPrintersW(flags, PCWSTR::null(), 2, None, &mut needed, &mut returned);
+            // Level 4 (PRINTER_INFO_4W) is the fast, cheap-enumeration level —
+            // just name/server/attributes, no per-printer driver round-trip.
+            EnumPrintersW(
+                flags,
+                ptr::null(),
+                4,
+                ptr::null_mut(),
+                0,
+                &mut needed,
+                &mut returned,
+            );
             if needed == 0 {
                 return Ok(vec![]);
             }
 
             let mut buffer = vec![0u8; needed as usize];
-            EnumPrintersW(
+            let ok = EnumPrintersW(
                 flags,
-                PCWSTR::null(),
-                2,
-                Some(&mut buffer),
+                ptr::null(),
+                4,
+                buffer.as_mut_ptr(),
+                needed,
                 &mut needed,
                 &mut returned,
-            )
-            .map_err(|e| format!("EnumPrinters failed: {e}"))?;
+            );
+            if ok == 0 {
+                return Err(last_error("EnumPrinters failed"));
+            }
 
-            let base = buffer.as_ptr() as *const PRINTER_INFO_2W;
+            let base = buffer.as_ptr() as *const PRINTER_INFO_4W;
             let mut names = Vec::with_capacity(returned as usize);
             for i in 0..returned as isize {
                 let info = &*base.offset(i);
                 if !info.pPrinterName.is_null() {
-                    if let Ok(name) = info.pPrinterName.to_string() {
-                        names.push(name);
-                    }
+                    names.push(wide_ptr_to_string(info.pPrinterName));
                 }
             }
             Ok(names)
