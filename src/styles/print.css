@@ -5,10 +5,13 @@
 
    - "receipt": Everycom 80-series, 80mm thermal roll, bills + day-summary.
      `auto` height runs the natural length of a continuous roll.
-   - "label": Sunphor SUP-LP58A barcode printer, configured for 48mm x 210mm
-     (203dpi) in its own driver settings — must match exactly or the page
-     gets forced onto whatever the browser's default assumes instead.
-   Zero margin on both so the printable area starts right at the paper edge. */
+   - "label": Sunphor SUP-LP58A barcode printer, 48mm x 210mm (confirmed).
+   Zero margin on both so the printable area starts right at the paper edge.
+   NOTE: even with the correct size, browser printing is still producing
+   extra/skipped paper for labels — see printBarcodeLabel.js for the real
+   fix (raw ESC/POS printing, bypassing this whole @media print pipeline
+   for labels specifically). This CSS path is left working as a fallback
+   for whenever the normal print dialog is used instead. */
 @page receipt {
   size: 80mm auto;
   margin: 0;
@@ -38,9 +41,20 @@
     left: 0;
     top: 0;
     width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    /* Block, not flex/grid — page-break properties on the .label children
+       below aren't reliably honored inside a flex/grid formatting context
+       by print engines (a real CSS Fragmentation limitation, not a typo).
+       Each label is wider than the 2in page anyway, so only one ever fits
+       per row — this just stacks them, one per physical label. */
+    display: block;
+  }
+  .print-area .label {
+    /* Forces each label onto its own physical label/page, regardless of how
+       many are queued in one print job — without this, multiple labels in
+       a batch can drift across physical label boundaries exactly like the
+       misaligned print this was built to fix. */
+    break-after: page;
+    page-break-after: always;
   }
   .no-print {
     display: none !important;

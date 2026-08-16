@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
 import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography,
 } from '@mui/material';
@@ -7,6 +9,7 @@ import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { useIsMobile } from 'src/hooks/useIsMobile.js';
 import BarcodeLabel from 'src/sections/barcodes/BarcodeLabel.jsx';
 import * as barcodesApi from 'src/api/barcodes.api.js';
+import { printBarcodeLabels } from 'src/utils/printBarcodeLabel.js';
 
 // Reprint a lost/damaged physical label. Unlike PrintLabelsDialog (the print
 // queue, which only shows never-printed labels), this pulls every unit that's
@@ -15,6 +18,8 @@ import * as barcodesApi from 'src/api/barcodes.api.js';
 export default function ReprintBarcodeDialog({ product, onClose }) {
   const open = Boolean(product);
   const isMobile = useIsMobile();
+  const { enqueueSnackbar } = useSnackbar();
+  const [printing, setPrinting] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['reprintBarcodes', product?._id],
@@ -25,6 +30,17 @@ export default function ReprintBarcodeDialog({ product, onClose }) {
     enabled: open,
   });
   const labels = data || [];
+
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      await printBarcodeLabels(labels, () => window.print());
+    } catch (e) {
+      enqueueSnackbar(`Print failed: ${e}`, { variant: 'error' });
+    } finally {
+      setPrinting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" fullScreen={isMobile}>
@@ -58,10 +74,10 @@ export default function ReprintBarcodeDialog({ product, onClose }) {
         <Button
           variant="contained"
           startIcon={<PrintRoundedIcon />}
-          onClick={() => window.print()}
-          disabled={!labels.length}
+          onClick={handlePrint}
+          disabled={!labels.length || printing}
         >
-          Print
+          {printing ? 'Printing…' : 'Print'}
         </Button>
       </DialogActions>
     </Dialog>

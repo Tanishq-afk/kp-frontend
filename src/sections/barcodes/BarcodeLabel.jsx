@@ -29,10 +29,15 @@ export default function BarcodeLabel({ barcode }) {
     <Box
       className="label"
       sx={{
-        width: 220,
+        // Matches print.css's @page label width (48mm) — used for the
+        // on-screen preview and the browser-print fallback path; the primary
+        // print path is now raw ESC/POS (printBarcodeLabel.js), which
+        // doesn't use this rendered box at all.
+        width: '48mm',
         border: '1px solid #ddd',
         borderRadius: 1,
         p: 1,
+        boxSizing: 'border-box',
         textAlign: 'center',
         bgcolor: '#fff',
         color: '#000',

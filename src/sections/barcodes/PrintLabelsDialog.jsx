@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import {
@@ -9,6 +10,7 @@ import { useIsMobile } from 'src/hooks/useIsMobile.js';
 import BarcodeLabel from './BarcodeLabel.jsx';
 import * as barcodesApi from 'src/api/barcodes.api.js';
 import { errorMessage } from 'src/utils/format.js';
+import { printBarcodeLabels } from 'src/utils/printBarcodeLabel.js';
 
 // `product` is a print-queue row ({ product, productName, categoryName, ... }).
 export default function PrintLabelsDialog({ product, onClose }) {
@@ -16,6 +18,7 @@ export default function PrintLabelsDialog({ product, onClose }) {
   const isMobile = useIsMobile();
   const { enqueueSnackbar } = useSnackbar();
   const qc = useQueryClient();
+  const [printing, setPrinting] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['printLabels', product?.product],
@@ -36,6 +39,17 @@ export default function PrintLabelsDialog({ product, onClose }) {
     },
     onError: (e) => enqueueSnackbar(errorMessage(e), { variant: 'error' }),
   });
+
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      await printBarcodeLabels(labels, () => window.print());
+    } catch (e) {
+      enqueueSnackbar(`Print failed: ${e}`, { variant: 'error' });
+    } finally {
+      setPrinting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" fullScreen={isMobile}>
@@ -62,8 +76,8 @@ export default function PrintLabelsDialog({ product, onClose }) {
       </DialogContent>
       <DialogActions className="no-print" sx={{ p: 2 }}>
         <Button onClick={onClose}>Close</Button>
-        <Button startIcon={<PrintRoundedIcon />} onClick={() => window.print()} disabled={!labels.length}>
-          Print
+        <Button startIcon={<PrintRoundedIcon />} onClick={handlePrint} disabled={!labels.length || printing}>
+          {printing ? 'Printing…' : 'Print'}
         </Button>
         <Button variant="contained" onClick={() => mark.mutate()} disabled={!labels.length || mark.isPending}>
           {mark.isPending ? 'Working…' : 'Mark printed'}
