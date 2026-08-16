@@ -54,11 +54,14 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
             fontSize: 17,
             fontWeight: 400,
             lineHeight: 1.5,
-            maxWidth: 340,
+            // Matches print.css's .receipt-area width/padding exactly (see
+            // BillReceiptContent.jsx for why this must match, not just be
+            // visually close — it's what printReceipt.js measures).
+            width: '80mm',
             mx: 'auto',
             color: 'common.black',
             bgcolor: 'common.white',
-            p: 2,
+            padding: '4mm',
           }}
         >
           <ReceiptLogo />

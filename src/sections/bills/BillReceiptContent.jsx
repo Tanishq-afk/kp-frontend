@@ -11,7 +11,7 @@ function Row({ label, value, bold, medium }) {
   const weight = bold ? 700 : medium ? 600 : 400;
   return (
     <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: weight }}>
-      <Box component="span">{label}</Box>
+      <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{label}</Box>
       <Box component="span" sx={{ textAlign: 'right' }}>{value}</Box>
     </Stack>
   );
@@ -45,11 +45,18 @@ export default function BillReceiptContent({ bill: b }) {
         fontSize: 17,
         fontWeight: 400,
         lineHeight: 1.5,
-        maxWidth: 340,
+        // Matches print.css's .receipt-area width/padding exactly (80mm /
+        // 4mm), not just visually close. printReceipt.js measures THIS
+        // on-screen render to compute the exact page height before
+        // printing -- if the preview width differs from the real print
+        // width, text wraps differently, the measured height undershoots
+        // the real (narrower, taller-wrapping) printed content, and the
+        // overflow spills onto an extra, mostly-blank page.
+        width: '80mm',
         mx: 'auto',
         color: 'common.black',
         bgcolor: 'common.white',
-        p: 2,
+        padding: '4mm',
       }}
     >
       <ReceiptLogo />
@@ -60,7 +67,7 @@ export default function BillReceiptContent({ bill: b }) {
 
       <Rule />
       <Row label="Bill No" value={b.billNumber} bold />
-      <Row label="Date & Time" value={formatDateTime(b.createdAt)} />
+      <Row label="Date" value={formatDateTime(b.createdAt)} />
       <Row label="Customer" value={b.customerName || 'Walk-in'} medium />
       {b.customerPhone && <Row label="Contact No" value={b.customerPhone} medium />}
 
