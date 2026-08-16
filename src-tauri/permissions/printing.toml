@@ -1,0 +1,13 @@
+# ACL permissions for the raw-printer commands in src/printing.rs. App-level
+# (non-plugin) commands need an explicit permission + capability grant in
+# Tauri v2 — registering them via invoke_handler alone is not enough.
+
+[[permission]]
+identifier = "allow-print-raw"
+description = "Allows sending raw bytes (ESC/POS) directly to a named printer via the Windows print spooler."
+commands.allow = ["print_raw"]
+
+[[permission]]
+identifier = "allow-list-printers"
+description = "Allows listing installed printer names."
+commands.allow = ["list_printers"]
