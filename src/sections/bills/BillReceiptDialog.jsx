@@ -14,10 +14,14 @@ import { printBillReceipt } from 'src/utils/printBillReceipt.js';
 // On-screen preview of the printable invoice. Reachable from the bills list
 // (row print icon) or from BillDetailDialog ("Print" button).
 //
-// Print button tries raw ESC/POS first (printBillReceipt -> print_raw,
-// bypasses the OS print dialog entirely, same mechanism as barcode labels),
-// falling back to the browser dialog (printReceipt) when not running in
-// Tauri or when no receipt printer is configured on the Printer Setup page.
+// Print button tries raw printing first (printBillReceipt): captures this
+// exact rendered preview (.receipt-area, below) as an image and sends it
+// straight to the printer via print_raw -- bypasses the OS print dialog
+// entirely (same mechanism as barcode labels), while still printing the
+// real CSS design pixel-for-pixel (fonts, weights, the ₹ symbol) rather
+// than reformatting it as plain printer text. Falls back to the browser
+// dialog (printReceipt) when not running in Tauri or no receipt printer is
+// configured on the Printer Setup page.
 export default function BillReceiptDialog({ billId, onClose }) {
   const open = Boolean(billId);
   const { enqueueSnackbar } = useSnackbar();
@@ -31,7 +35,7 @@ export default function BillReceiptDialog({ billId, onClose }) {
   const handlePrint = async () => {
     setPrinting(true);
     try {
-      await printBillReceipt(b, () => printReceipt());
+      await printBillReceipt(() => printReceipt());
     } catch (e) {
       enqueueSnackbar(`Print failed: ${e}`, { variant: 'error' });
     } finally {
