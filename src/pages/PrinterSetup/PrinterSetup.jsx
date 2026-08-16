@@ -31,12 +31,11 @@ const buildEscPosTestPayload = (label) => {
 // exactly what "sent to printer" + blank output means.
 const buildTsplTestPayload = () => {
   const b = new TsplBuilder();
-  b.size(48, 50);
+  b.size(48, 24); // matches the real label height inferred in printBarcodeLabel.js
   b.gap(2);
   b.cls();
-  b.text(mmToDots(4), mmToDots(4), 'KIDZ PLAZA', { font: '3' });
-  b.text(mmToDots(4), mmToDots(12), 'If you can read this,', { font: '2' });
-  b.text(mmToDots(4), mmToDots(18), 'TSPL printing works.', { font: '2' });
+  b.text(mmToDots(4), mmToDots(1), 'KIDZ PLAZA', { font: '2' });
+  b.text(mmToDots(4), mmToDots(9), 'TSPL printing works.', { font: '1' });
   b.print(1, 1);
   return b.toBytes();
 };
