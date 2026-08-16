@@ -25,21 +25,27 @@ const buildLabelBytes = (barcode) => {
   b.direction(1);
   b.reference(0, 0);
   b.cls();
-  b.text(mmToDots(4), mmToDots(3), 'KIDZ PLAZA', { font: '3' });
+  // Vertical layout tightened -- a real print showed the MRP line spilling
+  // onto the start of the NEXT physical label, i.e. title+subtitle+barcode
+  // (bars + firmware-added human-readable text below them)+MRP together
+  // needed more than the ~50mm real label height. Compressed everything
+  // (barcode height 10mm -> 8mm, tighter spacing) so total content now ends
+  // around Y=30mm, leaving real margin regardless of the exact real height.
+  b.text(mmToDots(4), mmToDots(2), 'KIDZ PLAZA', { font: '3' });
   // Sliced to 26 (was 32) -- at font "2"'s ~12-dot character width, 32 chars
   // reached the full 48mm label width with zero margin.
-  b.text(mmToDots(4), mmToDots(11), String(barcode.productName || '').slice(0, 26), { font: '2' });
+  b.text(mmToDots(4), mmToDots(8), String(barcode.productName || '').slice(0, 26), { font: '2' });
   // narrow=1 (was 2) -- a 16-char code like "KP00009960-4778" needs ~200
   // Code128 modules; at narrow=2 dots/module that's ~53mm, wider than the
   // 48mm label (the barcode's right edge was running past the printable
   // area). At narrow=1 it's ~26mm, comfortably inside with margin to spare.
-  b.barcode128(mmToDots(4), mmToDots(19), barcode.code, {
-    height: mmToDots(10),
+  b.barcode128(mmToDots(4), mmToDots(14), barcode.code, {
+    height: mmToDots(8),
     readable: 1,
     narrow: 1,
     wide: 1,
   });
-  b.text(mmToDots(4), mmToDots(35), `MRP :${Math.round(barcode.mrp)}`, { font: '3' });
+  b.text(mmToDots(4), mmToDots(27), `MRP :${Math.round(barcode.mrp)}`, { font: '3' });
   b.print(1, 1);
   return b.toBytes();
 };
