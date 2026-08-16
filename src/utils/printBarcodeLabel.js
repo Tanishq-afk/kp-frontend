@@ -26,12 +26,18 @@ const buildLabelBytes = (barcode) => {
   b.reference(0, 0);
   b.cls();
   b.text(mmToDots(4), mmToDots(3), 'KIDZ PLAZA', { font: '3' });
-  b.text(mmToDots(4), mmToDots(11), String(barcode.productName || '').slice(0, 32), { font: '2' });
+  // Sliced to 26 (was 32) -- at font "2"'s ~12-dot character width, 32 chars
+  // reached the full 48mm label width with zero margin.
+  b.text(mmToDots(4), mmToDots(11), String(barcode.productName || '').slice(0, 26), { font: '2' });
+  // narrow=1 (was 2) -- a 16-char code like "KP00009960-4778" needs ~200
+  // Code128 modules; at narrow=2 dots/module that's ~53mm, wider than the
+  // 48mm label (the barcode's right edge was running past the printable
+  // area). At narrow=1 it's ~26mm, comfortably inside with margin to spare.
   b.barcode128(mmToDots(4), mmToDots(19), barcode.code, {
     height: mmToDots(10),
     readable: 1,
-    narrow: 2,
-    wide: 2,
+    narrow: 1,
+    wide: 1,
   });
   b.text(mmToDots(4), mmToDots(35), `MRP :${Math.round(barcode.mrp)}`, { font: '3' });
   b.print(1, 1);
