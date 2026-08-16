@@ -17,6 +17,15 @@ export class EscPosBuilder {
     return this;
   }
 
+  // Bulk-append without spreading each element through a function call —
+  // `push(...arr)`/`raw(...arr)` risk "Maximum call stack size exceeded" on
+  // very large arrays (a raster logo image is ~10k bytes). concat() merges
+  // arrays directly, no per-element argument passing.
+  bytesRaw(arr) {
+    this.bytes = this.bytes.concat(arr);
+    return this;
+  }
+
   text(str) {
     for (let i = 0; i < str.length; i += 1) {
       this.bytes.push(str.charCodeAt(i) & 0xff);
@@ -70,6 +79,18 @@ export class EscPosBuilder {
     const payload = `{B${data}`;
     this.raw(GS, 0x6b, 73, payload.length);
     return this.text(payload);
+  }
+
+  // GS v 0: print a raster bit image. widthBytes = bytes per row
+  // (ceil(widthDots/8)), heightDots = image height in dots, data =
+  // widthBytes*heightDots bytes, MSB-first per byte, 1 = printed (black) dot.
+  rasterImage(widthBytes, heightDots, data) {
+    this.raw(
+      GS, 0x76, 0x30, 0x00,
+      widthBytes & 0xff, (widthBytes >> 8) & 0xff,
+      heightDots & 0xff, (heightDots >> 8) & 0xff,
+    );
+    return this.bytesRaw(data);
   }
 
   toBytes() {
