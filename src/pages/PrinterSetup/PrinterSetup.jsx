@@ -31,7 +31,7 @@ const buildEscPosTestPayload = (label) => {
 // exactly what "sent to printer" + blank output means.
 const buildTsplTestPayload = () => {
   const b = new TsplBuilder();
-  b.size(48, 210);
+  b.size(48, 50);
   b.gap(2);
   b.cls();
   b.text(mmToDots(4), mmToDots(4), 'KIDZ PLAZA', { font: '3' });

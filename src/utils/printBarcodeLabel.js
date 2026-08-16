@@ -2,12 +2,16 @@ import TsplBuilder, { mmToDots } from 'src/utils/tspl.js';
 
 const STORAGE_KEY = 'kp_printer_names'; // set on the Printer Setup page
 
-// Physical label stock: 48mm x 210mm die-cut labels with a small gap between
-// them. GAP_MM is a starting value — if labels come out shifted or the
-// printer skips/feeds extra blank labels, this is the first thing to tune
-// (it needs to match the real gap the printer's sensor detects).
+// Physical label stock: 48mm wide die-cut labels. LABEL_HEIGHT_MM was
+// originally set to 210mm (per an earlier printer-driver setting), but a
+// real test print showed 3 blank labels after every printed one — meaning
+// the printer was treating one 210mm SIZE block as a single canvas spanning
+// 4 real physical labels (210 / 4 ≈ 52.5mm). Corrected to the real physical
+// pitch: ~50mm label + ~2mm gap ≈ 52mm, matching what was observed. If
+// labels still drift or skip, this is the first thing to tune further (needs
+// to match the real gap the printer's sensor detects).
 const LABEL_WIDTH_MM = 48;
-const LABEL_HEIGHT_MM = 210;
+const LABEL_HEIGHT_MM = 50;
 const GAP_MM = 2;
 
 // One label's worth of TSPL commands: shop name, item name, a native
