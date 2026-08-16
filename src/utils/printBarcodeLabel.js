@@ -1,32 +1,41 @@
-import EscPosBuilder from 'src/utils/escpos.js';
+import TsplBuilder, { mmToDots } from 'src/utils/tspl.js';
 
 const STORAGE_KEY = 'kp_printer_names'; // set on the Printer Setup page
 
-// One label's worth of ESC/POS bytes: shop name, item name, a NATIVE
-// printer-drawn CODE128 barcode (crisper than rendering an <svg> to a raster
-// image, and immune to every @page/CSS sizing issue we've fought), MRP.
+// Physical label stock: 48mm x 210mm die-cut labels with a small gap between
+// them. GAP_MM is a starting value — if labels come out shifted or the
+// printer skips/feeds extra blank labels, this is the first thing to tune
+// (it needs to match the real gap the printer's sensor detects).
+const LABEL_WIDTH_MM = 48;
+const LABEL_HEIGHT_MM = 210;
+const GAP_MM = 2;
+
+// One label's worth of TSPL commands: shop name, item name, a native
+// printer-drawn CODE128 barcode, MRP. TSPL (not ESC/POS) — this is a TSC-OEM
+// label printer ("TSC TE244"), a different command language entirely from
+// the Everycom receipt printer. See tspl.js for why.
 const buildLabelBytes = (barcode) => {
-  const b = new EscPosBuilder();
-  b.init();
-  b.align(1); // center
-  b.bold(true);
-  b.line('KIDZ PLAZA');
-  b.bold(false);
-  b.line(String(barcode.productName || '').slice(0, 32));
-  b.barcodeWidth(2);
-  b.barcodeHeight(50);
-  b.barcodeTextPosition(2); // human-readable code printed below the bars
-  b.code128(barcode.code);
-  b.line();
-  b.bold(true);
-  b.line(`MRP :${Math.round(barcode.mrp)}`);
-  b.bold(false);
-  b.feed(3); // separation before the next label, no cut (die-cut stock)
+  const b = new TsplBuilder();
+  b.size(LABEL_WIDTH_MM, LABEL_HEIGHT_MM);
+  b.gap(GAP_MM);
+  b.direction(1);
+  b.reference(0, 0);
+  b.cls();
+  b.text(mmToDots(4), mmToDots(3), 'KIDZ PLAZA', { font: '3' });
+  b.text(mmToDots(4), mmToDots(11), String(barcode.productName || '').slice(0, 32), { font: '2' });
+  b.barcode128(mmToDots(4), mmToDots(19), barcode.code, {
+    height: mmToDots(10),
+    readable: 1,
+    narrow: 2,
+    wide: 2,
+  });
+  b.text(mmToDots(4), mmToDots(35), `MRP :${Math.round(barcode.mrp)}`, { font: '3' });
+  b.print(1, 1);
   return b.toBytes();
 };
 
-// Prints one or more barcode labels via raw ESC/POS to the printer saved on
-// the Printer Setup page — bypasses the browser print engine (and its @page/
+// Prints one or more barcode labels via raw TSPL to the printer saved on the
+// Printer Setup page — bypasses the browser print engine (and its @page/
 // margin/pagination problems) entirely. Falls back to the normal browser
 // print flow when not running in Tauri, or when no label printer has been
 // configured yet, via `fallback()`.

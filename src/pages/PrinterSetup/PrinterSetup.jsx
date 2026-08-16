@@ -4,14 +4,15 @@ import {
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import PageHeader from 'src/components/PageHeader';
+import TsplBuilder, { mmToDots } from 'src/utils/tspl.js';
 
 const IS_TAURI = '__TAURI_INTERNALS__' in window;
 const STORAGE_KEY = 'kp_printer_names';
 
 // ESC/POS: init, center, text, left, feed, full cut. A trivial payload just
-// to prove raw bytes reach the physical printer -- not real receipt/label
-// formatting (that's phase 2, once this foundation is confirmed working).
-const buildTestPayload = (label) => {
+// to prove raw bytes reach the physical printer -- not real receipt
+// formatting. For the Everycom (ESC/POS) receipt printer only.
+const buildEscPosTestPayload = (label) => {
   const esc = '\x1B';
   const gs = '\x1D';
   const text =
@@ -23,6 +24,25 @@ const buildTestPayload = (label) => {
     `${gs}V\x00`; // full cut
   return Array.from(text, (c) => c.charCodeAt(0));
 };
+
+// TSPL: SIZE/GAP/CLS/TEXT/PRINT. For the TSC (TSC TE244) label printer only
+// -- a completely different command language from ESC/POS. Sending ESC/POS
+// bytes to it doesn't error, it just silently prints nothing, which is
+// exactly what "sent to printer" + blank output means.
+const buildTsplTestPayload = () => {
+  const b = new TsplBuilder();
+  b.size(48, 210);
+  b.gap(2);
+  b.cls();
+  b.text(mmToDots(4), mmToDots(4), 'KIDZ PLAZA', { font: '3' });
+  b.text(mmToDots(4), mmToDots(12), 'If you can read this,', { font: '2' });
+  b.text(mmToDots(4), mmToDots(18), 'TSPL printing works.', { font: '2' });
+  b.print(1, 1);
+  return b.toBytes();
+};
+
+const buildTestPayload = (role, label) =>
+  (role === 'label' ? buildTsplTestPayload() : buildEscPosTestPayload(label));
 
 // Phase-1 test tool for raw ESC/POS printing (bypasses the browser print
 // engine entirely) -- lists Windows printers, lets you name which one is the
@@ -72,7 +92,7 @@ export default function PrinterSetupPage() {
     setTesting(role);
     try {
       const { invoke } = await import('@tauri-apps/api/core');
-      await invoke('print_raw', { printerName, data: buildTestPayload(role.toUpperCase()) });
+      await invoke('print_raw', { printerName, data: buildTestPayload(role, role.toUpperCase()) });
       enqueueSnackbar(`Sent to ${printerName}`, { variant: 'success' });
     } catch (e) {
       enqueueSnackbar(`Print failed: ${e}`, { variant: 'error' });
