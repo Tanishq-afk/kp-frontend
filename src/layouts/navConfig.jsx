@@ -7,6 +7,7 @@ import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import AssignmentReturnRoundedIcon from '@mui/icons-material/AssignmentReturnRounded';
 import SummarizeRoundedIcon from '@mui/icons-material/SummarizeRounded';
 import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { ROLE } from 'src/config/constants.js';
 
 // Sidebar navigation, filtered by role in AppLayout.
@@ -21,4 +22,5 @@ export const NAV_ITEMS = [
   { label: 'Customers', path: '/customers', icon: <PeopleAltRoundedIcon />, roles: [ROLE.ADMIN] },
   { label: 'Bills', path: '/bills', icon: <ReceiptLongRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
   { label: 'Day Summary', path: '/day-summary', icon: <SummarizeRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
+  { label: 'Printer Setup', path: '/printer-setup', icon: <PrintRoundedIcon />, roles: [ROLE.ADMIN] },
 ];

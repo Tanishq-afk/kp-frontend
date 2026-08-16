@@ -6,12 +6,17 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import * as billsApi from 'src/api/bills.api.js';
 import BillReceiptContent from 'src/sections/bills/BillReceiptContent.jsx';
-import { printBillWindow } from 'src/utils/printBillWindow.js';
+import { printReceipt } from 'src/utils/printReceipt.js';
 
 // On-screen preview of the printable invoice. Reachable from the bills list
-// (row print icon) or from BillDetailDialog ("Print" button). The actual
-// print markup lives in BillReceiptContent, shared with the hidden
-// silent-print window (PrintBill page) used on the Tauri desktop app.
+// (row print icon) or from BillDetailDialog ("Print" button).
+//
+// Prints via the normal dialog (printReceipt, same as labels/day-summary) --
+// NOT the hidden-window silent-print path (printBillWindow.js/PrintBill
+// page). That approach didn't work reliably on real Windows hardware, so
+// it's parked unused rather than deleted (may revisit once the raw-ESC/POS
+// printing work is further along), and this reverts to the known-safe
+// dialog-based flow in the meantime.
 export default function BillReceiptDialog({ billId, onClose }) {
   const open = Boolean(billId);
   const { data: b, isLoading } = useQuery({
@@ -37,7 +42,7 @@ export default function BillReceiptDialog({ billId, onClose }) {
 
       <DialogActions className="no-print" sx={{ p: 2 }}>
         <Button onClick={onClose}>Close</Button>
-        <Button variant="contained" startIcon={<PrintRoundedIcon />} disabled={!b} onClick={() => printBillWindow(billId)}>
+        <Button variant="contained" startIcon={<PrintRoundedIcon />} disabled={!b} onClick={() => printReceipt()}>
           Print
         </Button>
       </DialogActions>
