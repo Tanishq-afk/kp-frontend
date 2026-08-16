@@ -47,10 +47,12 @@ const buildLabelBytes = (barcode) => {
   b.cls();
 
   const title = 'KIDZ PLAZA';
-  // productName + articleNumber on one line (was productName alone) --
-  // requested so the article number is visible on the printed label.
-  // Capped at 26 chars total, same width-safety margin as before.
-  const nameLine = `${String(barcode.productName || '').slice(0, 16)} #${barcode.articleNumber || ''}`.slice(0, 26);
+  // productName + articleNumber + size (when it's a real size, not the
+  // "Free Size" sentinel -- matches the same convention BillReceiptContent
+  // uses for bills) on one line. Capped at 26 chars total, same
+  // width-safety margin as before.
+  const sizeSuffix = barcode.size && barcode.size !== 'Free Size' ? ` (${barcode.size})` : '';
+  const nameLine = `${String(barcode.productName || '').slice(0, 14)} #${barcode.articleNumber || ''}${sizeSuffix}`.slice(0, 26);
   const mrpLine = `MRP :${Math.round(barcode.mrp)}`;
 
   // Adaptive barcode width: code length varies (historical imported codes
@@ -64,17 +66,26 @@ const buildLabelBytes = (barcode) => {
   const barcodeWidthDots = modules * narrow;
   const barcodeX = Math.max(0, Math.round((LABEL_WIDTH_DOTS - barcodeWidthDots) / 2));
 
-  // Vertical layout for the ~24mm real height, with a bit more breathing
-  // room between rows than the first (correctly-fitting but cramped) pass.
+  // readable=0 -- the printer's own auto-added human-readable text under the
+  // bars comes out tiny with no size control. Printing the code ourselves
+  // (font '2', same as everything else) makes it bigger and lets us center
+  // it, both requested.
+  const codeLine = String(barcode.code || '');
+
+  // Vertical layout for the ~24mm real height. Barcode bumped 6mm -> 7mm
+  // (a bit taller, requested) using some of the ~4mm slack that was left
+  // over from the last pass; the rest of the slack goes to the manual code
+  // line replacing the tiny auto-added one.
   b.text(centeredX(title, 2), mmToDots(1), title, { font: '2' });
   b.text(centeredX(nameLine, 2), mmToDots(4.5), nameLine, { font: '2' });
   b.barcode128(barcodeX, mmToDots(8), barcode.code, {
-    height: mmToDots(6),
-    readable: 1,
+    height: mmToDots(7),
+    readable: 0,
     narrow,
     wide: narrow,
   });
-  b.text(centeredX(mrpLine, 2), mmToDots(17.5), mrpLine, { font: '2' });
+  b.text(centeredX(codeLine, 2), mmToDots(15.5), codeLine, { font: '2' });
+  b.text(centeredX(mrpLine, 2), mmToDots(18.5), mrpLine, { font: '2' });
   b.print(1, 1);
   return b.toBytes();
 };
