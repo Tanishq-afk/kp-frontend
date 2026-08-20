@@ -18,6 +18,7 @@ const CategoriesPage = lazy(() => import('src/pages/Categories'));
 const ProductsPage = lazy(() => import('src/pages/Products'));
 const ProductFormPage = lazy(() => import('src/pages/Products/form.jsx'));
 const PrintQueuePage = lazy(() => import('src/pages/PrintQueue'));
+const BarcodesPage = lazy(() => import('src/pages/Barcodes'));
 const CustomersPage = lazy(() => import('src/pages/Customers'));
 const BillsPage = lazy(() => import('src/pages/Bills'));
 const DaySummaryPage = lazy(() => import('src/pages/DaySummary'));
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
           { path: 'products/:id/edit', element: adminOnly(<ProductFormPage />) },
           { path: 'categories', element: adminOnly(<CategoriesPage />) },
           { path: 'print-queue', element: adminOnly(<PrintQueuePage />) },
+          { path: 'barcodes', element: adminOnly(<BarcodesPage />) },
           { path: 'customers', element: adminOnly(<CustomersPage />) },
           { path: 'printer-setup', element: adminOnly(<PrinterSetupPage />) },
 

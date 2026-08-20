@@ -2,6 +2,7 @@ import PointOfSaleRoundedIcon from '@mui/icons-material/PointOfSaleRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
 import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
+import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded';
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import AssignmentReturnRoundedIcon from '@mui/icons-material/AssignmentReturnRounded';
@@ -19,6 +20,7 @@ export const NAV_ITEMS = [
   { label: 'Products', path: '/products', icon: <Inventory2RoundedIcon />, roles: [ROLE.ADMIN] },
   { label: 'Categories', path: '/categories', icon: <CategoryRoundedIcon />, roles: [ROLE.ADMIN] },
   { label: 'Print Queue', path: '/print-queue', icon: <QrCode2RoundedIcon />, roles: [ROLE.ADMIN] },
+  { label: 'Barcodes', path: '/barcodes', icon: <ManageSearchRoundedIcon />, roles: [ROLE.ADMIN] },
   { label: 'Customers', path: '/customers', icon: <PeopleAltRoundedIcon />, roles: [ROLE.ADMIN] },
   { label: 'Bills', path: '/bills', icon: <ReceiptLongRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
   { label: 'Day Summary', path: '/day-summary', icon: <SummarizeRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
