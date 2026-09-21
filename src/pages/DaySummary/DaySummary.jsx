@@ -58,6 +58,7 @@ export default function DaySummaryPage() {
   const sales = s?.sales || {};
   const returns = s?.returns || {};
   const net = s?.net || {};
+  const expenses = s?.expenses || { total: 0, count: 0, items: [] };
 
   return (
     <Box>
@@ -138,6 +139,46 @@ export default function DaySummaryPage() {
             <Divider />
             <Line label="Refund credit" value={formatCurrency(returns.refundTotal)} strong color="error.main" />
           </SectionCard>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Stack direction="row" justifyContent="space-between" alignItems="baseline">
+                <Typography variant="subtitle1" gutterBottom>Expenses</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  For reference only — not deducted from sales, net revenue or drawer
+                </Typography>
+              </Stack>
+              <Box sx={{ overflowX: 'auto' }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Reason</TableCell>
+                      <TableCell align="right">Amount</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {expenses.items.map((e) => (
+                      <TableRow key={e._id}>
+                        <TableCell>{e.reason}</TableCell>
+                        <TableCell align="right">{formatCurrency(e.amount)}</TableCell>
+                      </TableRow>
+                    ))}
+                    {!isLoading && expenses.items.length === 0 && (
+                      <TableRow><TableCell colSpan={2} align="center" sx={{ py: 3, color: 'text.secondary' }}>No expenses on this day</TableCell></TableRow>
+                    )}
+                    {expenses.items.length > 0 && (
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 700 }}>Total expenses</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>{formatCurrency(expenses.total)}</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </Box>
+            </CardContent>
+          </Card>
         </Grid>
 
         <Grid item xs={12} md={7}>

@@ -11,6 +11,7 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import ShoppingBagRoundedIcon from '@mui/icons-material/ShoppingBagRounded';
+import MoneyOffRoundedIcon from '@mui/icons-material/MoneyOffRounded';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
 import PageHeader from 'src/components/PageHeader';
 import StatCard from 'src/components/StatCard';
@@ -86,6 +87,9 @@ export default function DashboardPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard label="Items sold" value={formatNumber(totals.itemsSold)} icon={<ShoppingBagRoundedIcon />} color="warning" />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard label="Expenses" value={formatCurrency(totals.expenses?.total)} icon={<MoneyOffRoundedIcon />} color="error" />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard label="Today" value={formatCurrency(today.revenue)} icon={<TodayRoundedIcon />} color="success" />

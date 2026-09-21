@@ -21,6 +21,7 @@ const PrintQueuePage = lazy(() => import('src/pages/PrintQueue'));
 const BarcodesPage = lazy(() => import('src/pages/Barcodes'));
 const CustomersPage = lazy(() => import('src/pages/Customers'));
 const BillsPage = lazy(() => import('src/pages/Bills'));
+const ExpensesPage = lazy(() => import('src/pages/Expenses'));
 const DaySummaryPage = lazy(() => import('src/pages/DaySummary'));
 const PrintBillPage = lazy(() => import('src/pages/PrintBill'));
 const PrinterSetupPage = lazy(() => import('src/pages/PrinterSetup'));
@@ -64,9 +65,10 @@ export const router = createBrowserRouter([
           { path: 'customers', element: adminOnly(<CustomersPage />) },
           { path: 'printer-setup', element: adminOnly(<PrinterSetupPage />) },
 
-          // Bills history + day summary — both roles
+          // Bills history + day summary + expenses — both roles
           { path: 'bills', element: <BillsPage /> },
           { path: 'day-summary', element: <DaySummaryPage /> },
+          { path: 'expenses', element: <ExpensesPage /> },
         ],
       },
     ],
