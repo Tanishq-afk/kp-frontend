@@ -13,6 +13,7 @@ const LoginPage = lazy(() => import('src/pages/Login'));
 const BillingPage = lazy(() => import('src/pages/Billing'));
 const ReturnsPage = lazy(() => import('src/pages/Returns'));
 const ReturnsReportPage = lazy(() => import('src/pages/ReturnsReport'));
+const AccountStatementPage = lazy(() => import('src/pages/AccountStatement'));
 const DashboardPage = lazy(() => import('src/pages/Dashboard'));
 const StockPage = lazy(() => import('src/pages/Stock'));
 const CategoriesPage = lazy(() => import('src/pages/Categories'));
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
           { path: 'dashboard', element: superadminOnly(<DashboardPage />) },
           { path: 'stock', element: superadminOnly(<StockPage />) },
           { path: 'returns-report', element: superadminOnly(<ReturnsReportPage />) },
+          { path: 'account-statement', element: superadminOnly(<AccountStatementPage />) },
 
           // Admin — inventory & POS
           { path: 'billing', element: adminOnly(<BillingPage />) },
