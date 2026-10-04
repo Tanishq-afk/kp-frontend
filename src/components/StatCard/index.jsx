@@ -1,7 +1,7 @@
 import { Avatar, Card, CardContent, Stack, Typography } from '@mui/material';
 
 // KPI tile: icon + label + big value.
-export default function StatCard({ label, value, icon, color = 'primary' }) {
+export default function StatCard({ label, value, caption, icon, color = 'primary' }) {
   return (
     <Card sx={{ height: '100%' }}>
       <CardContent>
@@ -16,6 +16,11 @@ export default function StatCard({ label, value, icon, color = 'primary' }) {
             <Typography variant="h5" fontWeight={700} lineHeight={1.2}>
               {value}
             </Typography>
+            {caption && (
+              <Typography variant="caption" color="text.secondary">
+                {caption}
+              </Typography>
+            )}
           </div>
         </Stack>
       </CardContent>

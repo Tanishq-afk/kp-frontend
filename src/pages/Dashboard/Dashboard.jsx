@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
-  Box, Card, CardContent, Grid, Stack, Table, TableBody, TableCell, TableHead, TableRow,
+  Box, Button, Card, CardContent, Grid, Stack, Table, TableBody, TableCell, TableHead, TableRow,
   Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -12,10 +12,14 @@ import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import ShoppingBagRoundedIcon from '@mui/icons-material/ShoppingBagRounded';
 import MoneyOffRoundedIcon from '@mui/icons-material/MoneyOffRounded';
+import AssignmentReturnRoundedIcon from '@mui/icons-material/AssignmentReturnRounded';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import PageHeader from 'src/components/PageHeader';
 import StatCard from 'src/components/StatCard';
+import RangeReportReceiptDialog from 'src/sections/reports/RangeReportReceiptDialog.jsx';
 import * as dashboardApi from 'src/api/dashboard.api.js';
+import { useAuth } from 'src/hooks/useAuth.js';
 import { formatCurrency, formatNumber } from 'src/utils/format.js';
 import { PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 
@@ -43,8 +47,10 @@ function NoData() {
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [from, setFrom] = useState(dayjs().subtract(29, 'day'));
   const [to, setTo] = useState(dayjs());
+  const [printOpen, setPrintOpen] = useState(false);
 
   const params = {
     from: from ? from.format('YYYY-MM-DD') : undefined,
@@ -53,6 +59,7 @@ export default function DashboardPage() {
   const key = [params.from, params.to];
 
   const summary = useQuery({ queryKey: ['dash', 'summary', ...key], queryFn: () => dashboardApi.getSummary(params).then((r) => r.data) });
+  const rangeReport = useQuery({ queryKey: ['dash', 'report', ...key], queryFn: () => dashboardApi.getRangeReport(params).then((r) => r.data) });
   const daily = useQuery({ queryKey: ['dash', 'daily', ...key], queryFn: () => dashboardApi.getDailySales(params).then((r) => r.data) });
   const payments = useQuery({ queryKey: ['dash', 'payments', ...key], queryFn: () => dashboardApi.getPaymentMethods(params).then((r) => r.data) });
   const topProducts = useQuery({ queryKey: ['dash', 'top', ...key], queryFn: () => dashboardApi.getTopProducts({ ...params, limit: 8 }).then((r) => r.data) });
@@ -74,13 +81,21 @@ export default function DashboardPage() {
           <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
             <DatePicker label="From" value={from} onChange={setFrom} slotProps={{ textField: { size: 'small', sx: { width: 150 } } }} />
             <DatePicker label="To" value={to} onChange={setTo} slotProps={{ textField: { size: 'small', sx: { width: 150 } } }} />
+            <Button
+              variant="contained"
+              startIcon={<PrintRoundedIcon />}
+              disabled={!rangeReport.data}
+              onClick={() => setPrintOpen(true)}
+            >
+              Print
+            </Button>
           </Stack>
         }
       />
 
       <Grid container spacing={2} sx={{ mb: 1 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Revenue" value={formatCurrency(totals.revenue)} icon={<PaymentsRoundedIcon />} color="primary" />
+          <StatCard label="Net revenue" value={formatCurrency(totals.netRevenue)} icon={<PaymentsRoundedIcon />} color="primary" />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard label="Bills" value={formatNumber(totals.bills)} icon={<ReceiptLongRoundedIcon />} color="info" />
@@ -90,6 +105,15 @@ export default function DashboardPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard label="Expenses" value={formatCurrency(totals.expenses?.total)} icon={<MoneyOffRoundedIcon />} color="error" />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            label="Returns"
+            value={formatCurrency(totals.returns?.refundTotal)}
+            caption={`${formatNumber(totals.returns?.itemsReturned)} items · ${formatNumber(totals.returns?.count)} returns`}
+            icon={<AssignmentReturnRoundedIcon />}
+            color="error"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard label="Today" value={formatCurrency(today.revenue)} icon={<TodayRoundedIcon />} color="success" />
@@ -209,6 +233,13 @@ export default function DashboardPage() {
           </ChartCard>
         </Grid>
       </Grid>
+
+      <RangeReportReceiptDialog
+        open={printOpen}
+        onClose={() => setPrintOpen(false)}
+        report={rangeReport.data}
+        user={user}
+      />
     </Box>
   );
 }
