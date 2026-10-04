@@ -7,3 +7,5 @@ export const completeHeldBill = (id, payload) => client.post(`/bills/${id}/compl
 export const discardBill = (id) => client.delete(`/bills/${id}`);
 export const listBills = (params) => client.get('/bills', { params });
 export const getBill = (id) => client.get(`/bills/${id}`);
+// Superadmin: every bill in the filtered range, for the printed list (no paging).
+export const listBillsForPrint = (params) => client.get('/bills/print-list', { params });

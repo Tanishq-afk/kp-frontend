@@ -14,7 +14,7 @@ import ExpenseFormDialog from 'src/sections/expenses/ExpenseFormDialog.jsx';
 import * as expensesApi from 'src/api/expenses.api.js';
 import { useAuth } from 'src/hooks/useAuth.js';
 import { ROLE } from 'src/config/constants.js';
-import { formatCurrency, formatDate, formatDateTime, formatNumber } from 'src/utils/format.js';
+import { formatCurrency, formatDate, formatDateTime, formatNumber, todayIST } from 'src/utils/format.js';
 
 const EmptyRow = ({ cols, show, text }) =>
   show ? (
@@ -28,9 +28,9 @@ export default function ExpensesPage() {
   const isSuper = role === ROLE.SUPERADMIN;
   const qc = useQueryClient();
 
-  const [day, setDay] = useState(dayjs()); // admin: the single day being viewed
-  const [from, setFrom] = useState(dayjs().startOf('month'));
-  const [to, setTo] = useState(dayjs());
+  const [day, setDay] = useState(todayIST()); // admin: the single day being viewed
+  const [from, setFrom] = useState(todayIST().startOf('month'));
+  const [to, setTo] = useState(todayIST());
   const [tab, setTab] = useState('entries');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
@@ -91,8 +91,8 @@ export default function ExpensesPage() {
               <DatePicker
                 label="Day"
                 value={day}
-                onChange={(v) => { setDay(v || dayjs()); setPage(0); }}
-                maxDate={dayjs()}
+                onChange={(v) => { setDay(v || todayIST()); setPage(0); }}
+                maxDate={todayIST()}
                 slotProps={{ textField: { size: 'small', sx: { width: 160 } } }}
               />
             )}

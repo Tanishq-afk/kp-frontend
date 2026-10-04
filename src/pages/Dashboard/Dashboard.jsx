@@ -20,7 +20,7 @@ import StatCard from 'src/components/StatCard';
 import RangeReportReceiptDialog from 'src/sections/reports/RangeReportReceiptDialog.jsx';
 import * as dashboardApi from 'src/api/dashboard.api.js';
 import { useAuth } from 'src/hooks/useAuth.js';
-import { formatCurrency, formatNumber } from 'src/utils/format.js';
+import { formatCurrency, formatNumber, todayIST } from 'src/utils/format.js';
 import { PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 
 const PIE_COLORS = ['#A2FF00', '#8133F1', '#00B8D9', '#00A76F', '#FFAB00', '#EB6262'];
@@ -48,8 +48,8 @@ function NoData() {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [from, setFrom] = useState(dayjs().subtract(29, 'day'));
-  const [to, setTo] = useState(dayjs());
+  const [from, setFrom] = useState(todayIST().subtract(29, 'day'));
+  const [to, setTo] = useState(todayIST());
   const [printOpen, setPrintOpen] = useState(false);
 
   const params = {

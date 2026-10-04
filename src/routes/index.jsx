@@ -12,6 +12,7 @@ import AuthLayout from 'src/layouts/AuthLayout.jsx';
 const LoginPage = lazy(() => import('src/pages/Login'));
 const BillingPage = lazy(() => import('src/pages/Billing'));
 const ReturnsPage = lazy(() => import('src/pages/Returns'));
+const ReturnsReportPage = lazy(() => import('src/pages/ReturnsReport'));
 const DashboardPage = lazy(() => import('src/pages/Dashboard'));
 const StockPage = lazy(() => import('src/pages/Stock'));
 const CategoriesPage = lazy(() => import('src/pages/Categories'));
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
           // Superadmin
           { path: 'dashboard', element: superadminOnly(<DashboardPage />) },
           { path: 'stock', element: superadminOnly(<StockPage />) },
+          { path: 'returns-report', element: superadminOnly(<ReturnsReportPage />) },
 
           // Admin — inventory & POS
           { path: 'billing', element: adminOnly(<BillingPage />) },

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
-  Box, Chip, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell,
+  Box, Button, Chip, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell,
   TableHead, TablePagination, TableRow, TextField, Tooltip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -10,10 +10,12 @@ import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import PageHeader from 'src/components/PageHeader';
 import BillDetailDialog from 'src/sections/bills/BillDetailDialog';
 import BillReceiptDialog from 'src/sections/bills/BillReceiptDialog';
+import ListPrintDialog from 'src/sections/reports/ListPrintDialog.jsx';
 import * as billsApi from 'src/api/bills.api.js';
+import { useAuth } from 'src/hooks/useAuth.js';
 import { useDebounce } from 'src/hooks/useDebounce.js';
 import { formatCurrency, formatDate } from 'src/utils/format.js';
-import { PAYMENT_STATUS, PAYMENT_STATUS_COLOR } from 'src/config/constants.js';
+import { PAYMENT_STATUS, PAYMENT_STATUS_COLOR, ROLE } from 'src/config/constants.js';
 
 export default function BillsPage() {
   const [search, setSearch] = useState('');
@@ -25,6 +27,10 @@ export default function BillsPage() {
   const [limit, setLimit] = useState(20);
   const [detailId, setDetailId] = useState(null);
   const [printId, setPrintId] = useState(null);
+  const { user, role } = useAuth();
+  const isSuperadmin = role === ROLE.SUPERADMIN;
+  const [listPrintOpen, setListPrintOpen] = useState(false);
+  const [listPrintFilters, setListPrintFilters] = useState({ search: '', paymentStatus: '' });
 
   const params = {
     search: debounced || undefined,
@@ -45,9 +51,34 @@ export default function BillsPage() {
   const total = data?.pagination?.total || 0;
   const resetPage = () => setPage(0);
 
+  // Superadmin print list: every bill in the screen's date range, narrowed by the
+  // optional print-only search/payment filters (no paging).
+  const listPrintParams = {
+    search: listPrintFilters.search.trim() || undefined,
+    paymentStatus: listPrintFilters.paymentStatus || undefined,
+    from: params.from,
+    to: params.to,
+  };
+  const { data: listPrint, isFetching: listPrintLoading } = useQuery({
+    queryKey: ['bills-print', listPrintParams],
+    queryFn: () => billsApi.listBillsForPrint(listPrintParams).then((r) => r.data),
+    enabled: isSuperadmin && listPrintOpen,
+    placeholderData: keepPreviousData,
+  });
+
   return (
     <Box>
-      <PageHeader title="Bills" subtitle="Sales history" />
+      <PageHeader
+        title="Bills"
+        subtitle="Sales history"
+        action={
+          isSuperadmin && (
+            <Button variant="outlined" startIcon={<PrintRoundedIcon />} onClick={() => setListPrintOpen(true)}>
+              Print list
+            </Button>
+          )
+        }
+      />
 
       <Paper sx={{ p: 2, mb: 2 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -160,6 +191,25 @@ export default function BillsPage() {
         onPrint={(id) => { setDetailId(null); setPrintId(id); }}
       />
       <BillReceiptDialog billId={printId} onClose={() => setPrintId(null)} />
+      {isSuperadmin && (
+        <ListPrintDialog
+          open={listPrintOpen}
+          onClose={() => setListPrintOpen(false)}
+          title="Bill"
+          range={{ from: params.from, to: params.to }}
+          rows={(listPrint?.items || []).map((b) => ({ key: b.billNumber, label: b.billNumber, date: b.createdAt, amount: b.total }))}
+          count={listPrint?.count || 0}
+          total={listPrint?.total || 0}
+          totalLabel="Total"
+          user={user}
+          filters={listPrintFilters}
+          onFiltersChange={setListPrintFilters}
+          paymentOptions={Object.values(PAYMENT_STATUS)}
+          loading={!listPrint || listPrintLoading}
+          truncated={Boolean(listPrint?.truncated)}
+          limit={listPrint?.limit}
+        />
+      )}
     </Box>
   );
 }

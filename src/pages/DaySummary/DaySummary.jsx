@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import dayjs from 'dayjs';
 import {
   Box, Button, Card, CardContent, Chip, Divider, Grid, Stack, Table, TableBody, TableCell,
   TableHead, TableRow, Typography,
@@ -16,7 +15,7 @@ import StatCard from 'src/components/StatCard';
 import DaySummaryReceiptDialog from 'src/sections/reports/DaySummaryReceiptDialog.jsx';
 import * as reportsApi from 'src/api/reports.api.js';
 import { useAuth } from 'src/hooks/useAuth.js';
-import { formatCurrency, formatNumber } from 'src/utils/format.js';
+import { formatCurrency, formatNumber, todayIST } from 'src/utils/format.js';
 import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_COLOR } from 'src/config/constants.js';
 
 function Line({ label, value, strong, color }) {
@@ -45,10 +44,10 @@ function SectionCard({ title, children }) {
 
 export default function DaySummaryPage() {
   const { user } = useAuth();
-  const [date, setDate] = useState(dayjs());
+  const [date, setDate] = useState(todayIST());
   const [printOpen, setPrintOpen] = useState(false);
 
-  const dateStr = date ? date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD');
+  const dateStr = date ? date.format('YYYY-MM-DD') : todayIST().format('YYYY-MM-DD');
   const { data, isLoading } = useQuery({
     queryKey: ['day-summary', dateStr],
     queryFn: () => reportsApi.getDaySummary({ date: dateStr }).then((r) => r.data),
@@ -70,8 +69,8 @@ export default function DaySummaryPage() {
             <DatePicker
               label="Date"
               value={date}
-              onChange={(v) => setDate(v || dayjs())}
-              maxDate={dayjs()}
+              onChange={(v) => setDate(v || todayIST())}
+              maxDate={todayIST()}
               slotProps={{ textField: { size: 'small', sx: { width: 170 } } }}
             />
             <Button

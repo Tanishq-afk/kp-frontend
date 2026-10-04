@@ -1,20 +1,25 @@
 import { useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
-  Box, Chip, InputAdornment, Paper, Stack, Table, TableBody, TableCell, TableHead,
+  Box, Button, Chip, InputAdornment, Paper, Stack, Table, TableBody, TableCell, TableHead,
   TablePagination, TableRow, TextField, Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import ReturnDetailDialog from './ReturnDetailDialog.jsx';
+import ListPrintDialog from 'src/sections/reports/ListPrintDialog.jsx';
 import * as returnsApi from 'src/api/returns.api.js';
+import { useAuth } from 'src/hooks/useAuth.js';
 import { useDebounce } from 'src/hooks/useDebounce.js';
 import { formatCurrency, formatDate } from 'src/utils/format.js';
 
 const DIRECTION_COLOR = { collect: 'warning', refund: 'success', even: 'default' };
 const DIRECTION_LABEL = { collect: 'Collected', refund: 'Refunded', even: 'Even' };
 
-export default function ReturnsHistory() {
+// `printable` (superadmin's returns screen) adds a Print button that prints the
+// full list for the current filters.
+export default function ReturnsHistory({ printable = false }) {
   const [search, setSearch] = useState('');
   const debounced = useDebounce(search);
   const [from, setFrom] = useState(null);
@@ -22,6 +27,9 @@ export default function ReturnsHistory() {
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [detailId, setDetailId] = useState(null);
+  const [printOpen, setPrintOpen] = useState(false);
+  const [printFilters, setPrintFilters] = useState({ search: '', paymentStatus: '' });
+  const { user } = useAuth();
 
   const params = {
     search: debounced || undefined,
@@ -40,6 +48,16 @@ export default function ReturnsHistory() {
 
   const items = data?.data || [];
   const total = data?.pagination?.total || 0;
+
+  // Print list: every return in the screen's date range, narrowed by the optional
+  // print-only search filter (no paging).
+  const printParams = { search: printFilters.search.trim() || undefined, from: params.from, to: params.to };
+  const { data: listPrint, isFetching: listPrintLoading } = useQuery({
+    queryKey: ['returns-print', printParams],
+    queryFn: () => returnsApi.listReturnsForPrint(printParams).then((r) => r.data),
+    enabled: printable && printOpen,
+    placeholderData: keepPreviousData,
+  });
 
   return (
     <Box>
@@ -60,6 +78,11 @@ export default function ReturnsHistory() {
           />
           <DatePicker label="From" value={from} onChange={(v) => { setFrom(v); resetPage(); }} slotProps={{ textField: { size: 'small' }, field: { clearable: true } }} />
           <DatePicker label="To" value={to} onChange={(v) => { setTo(v); resetPage(); }} slotProps={{ textField: { size: 'small' }, field: { clearable: true } }} />
+          {printable && (
+            <Button variant="outlined" startIcon={<PrintRoundedIcon />} onClick={() => setPrintOpen(true)} sx={{ flexShrink: 0 }}>
+              Print list
+            </Button>
+          )}
         </Stack>
       </Paper>
 
@@ -115,6 +138,24 @@ export default function ReturnsHistory() {
       </Paper>
 
       <ReturnDetailDialog returnId={detailId} onClose={() => setDetailId(null)} />
+      {printable && (
+        <ListPrintDialog
+          open={printOpen}
+          onClose={() => setPrintOpen(false)}
+          title="Return"
+          range={{ from: params.from, to: params.to }}
+          rows={(listPrint?.items || []).map((r) => ({ key: r.returnNumber, label: r.returnNumber, date: r.createdAt, amount: r.refundTotal }))}
+          count={listPrint?.count || 0}
+          total={listPrint?.total || 0}
+          totalLabel="Total refund"
+          user={user}
+          filters={printFilters}
+          onFiltersChange={setPrintFilters}
+          loading={!listPrint || listPrintLoading}
+          truncated={Boolean(listPrint?.truncated)}
+          limit={listPrint?.limit}
+        />
+      )}
     </Box>
   );
 }

@@ -9,3 +9,5 @@ export const createReturn = (payload) => client.post('/returns', payload);
 // Returns history + detail.
 export const listReturns = (params) => client.get('/returns', { params });
 export const getReturn = (id) => client.get(`/returns/${id}`);
+// Superadmin: every return in the filtered range, for the printed list (no paging).
+export const listReturnsForPrint = (params) => client.get('/returns/print-list', { params });

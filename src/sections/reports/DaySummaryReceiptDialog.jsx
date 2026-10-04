@@ -1,10 +1,9 @@
-import dayjs from 'dayjs';
 import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, Typography,
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
-import { formatCurrency, formatDate } from 'src/utils/format.js';
+import { formatCurrency, formatDate, formatDateTime } from 'src/utils/format.js';
 import { PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import { printReceipt } from 'src/utils/printReceipt.js';
 import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
@@ -138,7 +137,7 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
 
           <Rule />
           <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500, mt: 0.5 }}>
-            Printed {dayjs().format('DD MMM YYYY, hh:mm A')}
+            Printed {formatDateTime(new Date())}
             {user?.name ? ` by ${user.name}` : ''}
           </Typography>
           <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
