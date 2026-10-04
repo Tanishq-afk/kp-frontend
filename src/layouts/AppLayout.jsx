@@ -110,7 +110,7 @@ export default function AppLayout() {
           >
             <Box sx={{ px: 2, py: 1 }}>
               <Typography variant="subtitle2">{user?.name}</Typography>
-              <Typography variant="caption" color="text.secondary">{user?.email}</Typography>
+              <Typography variant="caption" color="text.secondary">{user?.phone || user?.email}</Typography>
             </Box>
             <Divider />
             <MenuItem onClick={handleLogout}>
