@@ -53,8 +53,9 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const login = useCallback(async (email, password) => {
-    const res = await authApi.login({ email, password });
+  // loginId is the 10-digit phone number.
+  const login = useCallback(async (phone, password) => {
+    const res = await authApi.login({ phone, password });
     setToken(res.data.token);
     setUser(res.data.user);
     return res.data.user;

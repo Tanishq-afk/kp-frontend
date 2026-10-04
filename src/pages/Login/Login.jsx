@@ -6,7 +6,7 @@ import {
   TextField, Typography,
 } from '@mui/material';
 import StorefrontRoundedIcon from '@mui/icons-material/StorefrontRounded';
-import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
+import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import { useAuth } from 'src/hooks/useAuth.js';
 import { ROLE } from 'src/config/constants.js';
@@ -20,17 +20,19 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ defaultValues: { email: '', password: '' } });
+  } = useForm({ defaultValues: { phone: '', password: '' } });
 
   // Already signed in -> go to the role's home.
   if (isAuthenticated) {
     return <Navigate to={role === ROLE.SUPERADMIN ? '/dashboard' : '/billing'} replace />;
   }
 
-  const onSubmit = async ({ email, password }) => {
+  const onSubmit = async ({ phone, password }) => {
     setError('');
     try {
-      const user = await login(email, password);
+      // Send the 10 digits only (a leading 91 country code is dropped).
+      const digits = phone.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '');
+      const user = await login(digits, password);
       navigate(user.role === ROLE.SUPERADMIN ? '/dashboard' : '/billing', { replace: true });
     } catch (err) {
       setError(errorMessage(err, 'Login failed'));
@@ -59,23 +61,28 @@ export default function LoginPage() {
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <Stack spacing={2.5}>
             <TextField
-              label="Email"
-              type="email"
+              label="Phone number"
+              type="tel"
               fullWidth
               autoFocus
               autoComplete="username"
-              error={Boolean(errors.email)}
-              helperText={errors.email?.message}
+              inputProps={{ inputMode: 'tel' }}
+              error={Boolean(errors.phone)}
+              helperText={errors.phone?.message}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <EmailRoundedIcon fontSize="small" color="action" />
+                    <PhoneRoundedIcon fontSize="small" color="action" />
                   </InputAdornment>
                 ),
               }}
-              {...register('email', {
-                required: 'Email is required',
-                pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
+              {...register('phone', {
+                required: 'Phone number is required',
+                validate: (value) => {
+                  const digits = value.replace(/\D/g, '');
+                  return (digits.length === 10 || (digits.length === 12 && digits.startsWith('91')))
+                    || 'Enter a 10-digit mobile number';
+                },
               })}
             />
             <TextField
