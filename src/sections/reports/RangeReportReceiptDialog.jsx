@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import dayjs from 'dayjs';
 import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, Typography,
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { formatCurrency, formatDate, formatNumber } from 'src/utils/format.js';
 import { printReceipt } from 'src/utils/printReceipt.js';
+import { printBillReceipt } from 'src/utils/printBillReceipt.js';
 import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
 
 // A single label/value line in the slip. Bold for headings/key totals.
@@ -30,8 +33,24 @@ function Heading({ children }) {
 
 // Printable date-range report (thermal-receipt style) for the superadmin dashboard.
 // `report` is the /dashboard/report payload; `user` is who is printing.
+// Print goes through the same path as the bill receipt: raw to the saved receipt
+// printer in the desktop app, otherwise the browser print dialog.
 export default function RangeReportReceiptDialog({ open, onClose, report, user }) {
+  const { enqueueSnackbar } = useSnackbar();
+  const [printing, setPrinting] = useState(false);
   if (!report) return null;
+
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      await printBillReceipt(() => printReceipt());
+    } catch (e) {
+      enqueueSnackbar(`Print failed: ${e}`, { variant: 'error' });
+    } finally {
+      setPrinting(false);
+    }
+  };
+
   const { range, sales, returns, net, expenses } = report;
 
   const fromLabel = range.from ? formatDate(range.from) : 'Start';
@@ -107,8 +126,8 @@ export default function RangeReportReceiptDialog({ open, onClose, report, user }
 
       <DialogActions className="no-print" sx={{ p: 2 }}>
         <Button onClick={onClose}>Close</Button>
-        <Button variant="contained" startIcon={<PrintRoundedIcon />} onClick={() => printReceipt()}>
-          Print
+        <Button variant="contained" startIcon={<PrintRoundedIcon />} disabled={printing} onClick={handlePrint}>
+          {printing ? 'Printing…' : 'Print'}
         </Button>
       </DialogActions>
     </Dialog>
