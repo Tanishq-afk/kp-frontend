@@ -6,6 +6,7 @@ import {
 import CustomerSelect from './CustomerSelect.jsx';
 import PaymentSplit from './PaymentSplit.jsx';
 import { DISCOUNT_TYPE } from 'src/config/constants.js';
+import { discountProblem } from 'src/utils/discount.js';
 import { formatCurrency } from 'src/utils/format.js';
 
 function Row({ label, value, strong, color }) {
@@ -53,9 +54,10 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
   };
   const showPrefillHint = Boolean(prefilled.current) && remarks === prefilled.current;
 
+  const discountError = discountProblem(discountType, discountValue, subtotal);
   const creditOk = balance === 0 || (hasCustomer && creditAccepted);
-  const canComplete = items.length > 0 && total > 0 && creditOk;
-  const canHold = items.length > 0;
+  const canComplete = items.length > 0 && total > 0 && creditOk && !discountError;
+  const canHold = items.length > 0 && !discountError;
 
   return (
     <Stack spacing={2}>
@@ -81,6 +83,8 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
             value={discountValue}
             onChange={(e) => setDiscountValue(e.target.value)}
             placeholder={discountType === DISCOUNT_TYPE.PERCENT ? 'Percent' : 'Amount'}
+            error={Boolean(discountError)}
+            helperText={discountError || undefined}
           />
         </Stack>
       </Paper>

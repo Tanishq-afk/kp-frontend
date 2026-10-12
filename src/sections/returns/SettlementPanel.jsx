@@ -3,6 +3,7 @@ import {
 } from '@mui/material';
 import PaymentSplit from 'src/sections/billing/PaymentSplit.jsx';
 import { DISCOUNT_TYPE } from 'src/config/constants.js';
+import { discountProblem } from 'src/utils/discount.js';
 import { formatCurrency } from 'src/utils/format.js';
 
 function Row({ label, value, strong, color }) {
@@ -36,6 +37,7 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
   } = rtn;
 
   const hasExchange = newItems.length > 0;
+  const discountError = hasExchange ? discountProblem(discountType, discountValue, exchangeSubtotal) : '';
   const net = NET_META[direction];
   const submitLabel = submitting
     ? 'Processing…'
@@ -79,6 +81,8 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
               value={discountValue}
               onChange={(e) => setDiscountValue(e.target.value)}
               placeholder={discountType === DISCOUNT_TYPE.PERCENT ? 'Percent' : 'Amount'}
+              error={Boolean(discountError)}
+              helperText={discountError || undefined}
             />
           </Stack>
         </Paper>
@@ -130,7 +134,7 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
           variant="contained"
           size="large"
           sx={{ mt: 2 }}
-          disabled={!canSubmit || submitting}
+          disabled={!canSubmit || submitting || Boolean(discountError)}
           onClick={onSubmit}
         >
           {submitLabel}
