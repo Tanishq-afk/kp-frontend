@@ -1,5 +1,7 @@
+import { useEffect, useRef, useState } from 'react';
 import {
-  Button, Divider, Paper, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography,
+  Button, Checkbox, Divider, FormControlLabel, Paper, Stack, TextField, ToggleButton,
+  ToggleButtonGroup, Typography,
 } from '@mui/material';
 import CustomerSelect from './CustomerSelect.jsx';
 import PaymentSplit from './PaymentSplit.jsx';
@@ -30,12 +32,34 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
     subtotal, discountAmount, total, amountPaid, balance, change,
   } = billing;
 
-  const canComplete = items.length > 0 && total > 0 && amountPaid >= total;
+  // A part-paid sale can only be completed as credit, and credit needs a customer
+  // (name and phone) so the pending amount can be tracked and collected later.
+  const hasCustomer = Boolean(customer.name?.trim() && customer.phone?.trim());
+  const [creditAccepted, setCreditAccepted] = useState(false);
+  useEffect(() => {
+    if (balance === 0) setCreditAccepted(false);
+  }, [balance]);
+
+  // Prefill remarks with the picked customer's last note (internal context for the
+  // counter). Never overwrites what the admin typed: only an empty field, or one
+  // still holding the previous customer's prefilled note, is replaced.
+  const prefilled = useRef('');
+  const handleCustomerPick = (found) => {
+    const note = found?.remarks?.trim() || '';
+    if (remarks.trim() === '' || remarks === prefilled.current) {
+      setRemarks(note);
+      prefilled.current = note;
+    }
+  };
+  const showPrefillHint = Boolean(prefilled.current) && remarks === prefilled.current;
+
+  const creditOk = balance === 0 || (hasCustomer && creditAccepted);
+  const canComplete = items.length > 0 && total > 0 && creditOk;
   const canHold = items.length > 0;
 
   return (
     <Stack spacing={2}>
-      <CustomerSelect customer={customer} onChange={setCustomer} onLookup={onLookupCustomer} />
+      <CustomerSelect customer={customer} onChange={setCustomer} onLookup={onLookupCustomer} onPick={handleCustomerPick} />
 
       <Paper sx={{ p: 2 }}>
         <Typography variant="subtitle2" gutterBottom>
@@ -69,6 +93,27 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
         balance={balance}
       />
 
+      {balance > 0 && (
+        <Paper sx={{ p: 2 }}>
+          <Typography variant="subtitle2" gutterBottom>Pending balance</Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={creditAccepted}
+                disabled={!hasCustomer}
+                onChange={(e) => setCreditAccepted(e.target.checked)}
+              />
+            }
+            label={`Record ${formatCurrency(balance)} as credit for this customer`}
+          />
+          {!hasCustomer && (
+            <Typography variant="caption" color="warning.main" display="block">
+              Enter the customer's name and phone to sell on credit.
+            </Typography>
+          )}
+        </Paper>
+      )}
+
       <Paper sx={{ p: 2 }}>
         <Stack spacing={1}>
           <Row label="Subtotal" value={formatCurrency(subtotal)} />
@@ -85,6 +130,7 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
           label="Remarks"
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
+          helperText={showPrefillHint ? "Customer's last remark (internal, not printed on the bill)" : undefined}
           sx={{ mt: 2 }}
         />
 

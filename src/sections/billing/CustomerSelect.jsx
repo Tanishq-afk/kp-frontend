@@ -10,7 +10,9 @@ import { useDebounce } from 'src/hooks/useDebounce.js';
 // Phone-first customer entry: look up by phone (autofills an existing customer),
 // search by name (suggests matches so the right same-named customer can be
 // picked by their phone number), or type a new name (created on bill completion).
-export default function CustomerSelect({ customer, onChange, onLookup }) {
+// `onPick` gets the existing customer record when one is selected, or null when the
+// selection is cleared or the phone is new.
+export default function CustomerSelect({ customer, onChange, onLookup, onPick }) {
   const [looking, setLooking] = useState(false);
   const [status, setStatus] = useState(null); // 'found' | 'new' | null
 
@@ -29,6 +31,7 @@ export default function CustomerSelect({ customer, onChange, onLookup }) {
     // clears itself.
     onChange(customer.id ? { id: null, name: '', phone: '' } : { ...customer, name: '', id: null });
     setStatus(null);
+    onPick?.(null);
   };
 
   const doLookup = async () => {
@@ -40,9 +43,11 @@ export default function CustomerSelect({ customer, onChange, onLookup }) {
       if (found) {
         onChange({ id: found._id, name: found.name, phone: found.phone });
         setStatus('found');
+        onPick?.(found);
       } else {
         onChange({ ...customer, id: null });
         setStatus('new');
+        onPick?.(null);
       }
     } finally {
       setLooking(false);
@@ -102,6 +107,7 @@ export default function CustomerSelect({ customer, onChange, onLookup }) {
             } else if (value && typeof value === 'object') {
               onChange({ id: value._id, name: value.name, phone: value.phone });
               setStatus('found');
+              onPick?.(value);
             }
           }}
           getOptionLabel={(opt) => (typeof opt === 'string' ? opt : opt.name)}

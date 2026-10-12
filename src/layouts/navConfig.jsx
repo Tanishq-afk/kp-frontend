@@ -10,6 +10,7 @@ import SummarizeRoundedIcon from '@mui/icons-material/SummarizeRounded';
 import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
 import MoneyOffRoundedIcon from '@mui/icons-material/MoneyOffRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
+import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import AccountBalanceRoundedIcon from '@mui/icons-material/AccountBalanceRounded';
 import { ROLE } from 'src/config/constants.js';
 
@@ -29,5 +30,6 @@ export const NAV_ITEMS = [
   { label: 'Bills', path: '/bills', icon: <ReceiptLongRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
   { label: 'Day Summary', path: '/day-summary', icon: <SummarizeRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
   { label: 'Expenses', path: '/expenses', icon: <MoneyOffRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
+  { label: 'Dues', path: '/dues', icon: <AccountBalanceWalletRoundedIcon />, roles: [ROLE.ADMIN, ROLE.SUPERADMIN] },
   { label: 'Printer Setup', path: '/printer-setup', icon: <PrintRoundedIcon />, roles: [ROLE.ADMIN] },
 ];

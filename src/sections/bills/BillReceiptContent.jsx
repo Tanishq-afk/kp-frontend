@@ -2,6 +2,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
 import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
+import { paidLater } from 'src/utils/billAmounts.js';
 
 // A single label/value line in the slip. `bold` for headings/key totals,
 // `medium` for a slight emphasis (e.g. customer details), plain regular
@@ -110,16 +111,10 @@ export default function BillReceiptContent({ bill: b }) {
       ))}
       {(!b.payments || b.payments.length === 0) && <Row label="Amount paid" value={formatCurrency(b.amountPaid)} />}
       {b.changeReturned > 0 && <Row label="Change returned" value={formatCurrency(b.changeReturned)} />}
+      {paidLater(b) > 0 && <Row label="Paid later" value={formatCurrency(paidLater(b))} />}
+      {b.amountDue > 0 && <Row label="Balance due" value={formatCurrency(b.amountDue)} bold />}
 
-      {b.remarks && (
-        <>
-          <Rule />
-          <Typography component="div" sx={{ fontSize: 15, fontWeight: 400 }}>
-            Remarks: {b.remarks}
-          </Typography>
-        </>
-      )}
-
+      {/* Remarks are internal notes: shown in billing history, never on the customer's slip. */}
       <Rule />
       <Typography component="div" sx={{ fontWeight: 700 }}>Terms and Conditions:</Typography>
       {TERMS.map((t, i) => (

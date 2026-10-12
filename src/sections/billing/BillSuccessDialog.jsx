@@ -17,6 +17,11 @@ export default function BillSuccessDialog({ bill, onNewSale, onPrint }) {
           <Typography variant="h5" fontWeight={700}>
             {formatCurrency(bill?.total)}
           </Typography>
+          {bill?.amountDue > 0 && (
+            <Typography color="error.main" fontWeight={600}>
+              On credit: {formatCurrency(bill.amountDue)} pending from {bill.customerName}
+            </Typography>
+          )}
           {bill?.changeReturned > 0 && (
             <Typography color="success.main">
               Change to return: {formatCurrency(bill.changeReturned)}

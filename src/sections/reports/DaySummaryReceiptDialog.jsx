@@ -34,6 +34,7 @@ function Heading({ children }) {
 export default function DaySummaryReceiptDialog({ open, onClose, summary, user }) {
   if (!summary) return null;
   const { sales, paymentsIn, totalCollected, returns, refundsOut, totalRefunded, net, bills, returnsList } = summary;
+  const duesIn = summary.duesIn || [];
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -79,12 +80,21 @@ export default function DaySummaryReceiptDialog({ open, onClose, summary, user }
           <Row label="Discount" value={`- ${formatCurrency(sales.discount)}`} />
           {sales.tax > 0 && <Row label="Tax" value={formatCurrency(sales.tax)} />}
           <Row label="Items sold" value={sales.itemsSold} />
+          {sales.creditGiven > 0 && (
+            <>
+              <Row label="On credit" value={formatCurrency(sales.creditGiven)} />
+              <Row label="Credit pending" value={formatCurrency(sales.creditPending || 0)} />
+            </>
+          )}
 
           <Rule />
           <Heading>COLLECTED</Heading>
-          {paymentsIn.length === 0 && <Row label="—" value={formatCurrency(0)} />}
+          {paymentsIn.length === 0 && duesIn.length === 0 && <Row label="—" value={formatCurrency(0)} />}
           {paymentsIn.map((p) => (
             <Row key={p.method} label={PAYMENT_METHOD_LABELS[p.method] || p.method} value={formatCurrency(p.amount)} />
+          ))}
+          {duesIn.map((p) => (
+            <Row key={`dues-${p.method}`} label={`Dues ${PAYMENT_METHOD_LABELS[p.method] || p.method}`} value={formatCurrency(p.amount)} />
           ))}
           <Row label="Total in" value={formatCurrency(totalCollected)} bold />
 

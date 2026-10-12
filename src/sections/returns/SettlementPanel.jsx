@@ -28,7 +28,7 @@ const NET_META = {
 // collect or refund, the payment split, remarks and the submit action.
 export default function SettlementPanel({ rtn, onSubmit, submitting }) {
   const {
-    source, returnItems, returnCredit,
+    source, returnItems, returnCredit, dueAdjusted,
     newItems, discountType, setDiscountType, discountValue, setDiscountValue,
     exchangeSubtotal, exchangeDiscount, exchangeTotal,
     direction, settleAmount, payments, addPayment, updatePayment, removePayment, balance,
@@ -53,6 +53,11 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
         <Typography variant="caption" color="text.secondary">
           {source.bill.customerPhone || 'No phone on file'}
         </Typography>
+        {source.bill.amountDue > 0 && (
+          <Typography variant="body2" color="warning.main" sx={{ mt: 0.5 }}>
+            Unpaid balance on this bill: {formatCurrency(source.bill.amountDue)}
+          </Typography>
+        )}
       </Paper>
 
       {hasExchange && (
@@ -96,6 +101,9 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
             value={`- ${formatCurrency(returnCredit)}`}
             color="success.main"
           />
+          {dueAdjusted > 0 && (
+            <Row label="Cleared from unpaid balance" value={formatCurrency(dueAdjusted)} color="warning.main" />
+          )}
           {hasExchange && (
             <>
               <Row label="New items" value={formatCurrency(exchangeSubtotal)} />
