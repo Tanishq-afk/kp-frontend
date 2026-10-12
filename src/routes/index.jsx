@@ -14,6 +14,7 @@ const BillingPage = lazy(() => import('src/pages/Billing'));
 const ReturnsPage = lazy(() => import('src/pages/Returns'));
 const ReturnsReportPage = lazy(() => import('src/pages/ReturnsReport'));
 const AccountStatementPage = lazy(() => import('src/pages/AccountStatement'));
+const DuesPage = lazy(() => import('src/pages/Dues'));
 const DashboardPage = lazy(() => import('src/pages/Dashboard'));
 const StockPage = lazy(() => import('src/pages/Stock'));
 const CategoriesPage = lazy(() => import('src/pages/Categories'));
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
           { path: 'bills', element: <BillsPage /> },
           { path: 'day-summary', element: <DaySummaryPage /> },
           { path: 'expenses', element: <ExpensesPage /> },
+          { path: 'dues', element: <DuesPage /> },
         ],
       },
     ],

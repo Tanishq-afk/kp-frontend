@@ -97,6 +97,17 @@ export function useReturn() {
     [returnItems]
   );
 
+  // On a credit bill the unpaid balance is cancelled first (mirrors the backend):
+  // only the rest is refunded or put toward an exchange. Returning every unit
+  // still on the bill cancels the whole balance.
+  const dueAdjusted = useMemo(() => {
+    const owed = Number(source?.bill?.amountDue) || 0;
+    if (!owed || returnItems.length === 0) return 0;
+    const returnableLeft = source.items.filter((it) => it.returnable).length;
+    return returnItems.length >= returnableLeft ? owed : Math.min(owed, returnCredit);
+  }, [source, returnItems, returnCredit]);
+  const usableCredit = Math.max(0, returnCredit - dueAdjusted);
+
   const exchangeSubtotal = useMemo(
     () => newItems.reduce((s, i) => s + (Number(i.mrp) || 0), 0),
     [newItems]
@@ -108,7 +119,7 @@ export function useReturn() {
   }, [discountType, discountValue, exchangeSubtotal]);
   const exchangeTotal = Math.max(0, exchangeSubtotal - exchangeDiscount);
 
-  const netAmount = exchangeTotal - returnCredit; // >0 collect, <0 refund, 0 even
+  const netAmount = exchangeTotal - usableCredit; // >0 collect, <0 refund, 0 even
   // eslint-disable-next-line no-nested-ternary
   const direction = netAmount > 0 ? 'collect' : netAmount < 0 ? 'refund' : 'even';
   const settleAmount = Math.abs(netAmount);
@@ -151,7 +162,7 @@ export function useReturn() {
     discountType, setDiscountType, discountValue, setDiscountValue,
     payments, addPayment, updatePayment, removePayment,
     remarks, setRemarks,
-    returnItems, returnCredit,
+    returnItems, returnCredit, dueAdjusted,
     exchangeSubtotal, exchangeDiscount, exchangeTotal,
     netAmount, direction, settleAmount, amountPaid, balance,
     canSubmit, buildPayload,

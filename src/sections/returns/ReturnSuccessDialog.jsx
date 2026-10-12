@@ -37,6 +37,9 @@ export default function ReturnSuccessDialog({ result, onNew }) {
         <Stack spacing={1} sx={{ mt: 2, textAlign: 'left' }}>
           <Row label="Items returned" value={r?.items?.length || 0} />
           <Row label="Return credit" value={formatCurrency(r?.refundTotal)} color="success.main" />
+          {r?.dueAdjusted > 0 && (
+            <Row label="Cleared from unpaid balance" value={formatCurrency(r.dueAdjusted)} color="warning.main" />
+          )}
           {r?.exchangeBill && (
             <Row
               label={`New sale ${r.exchangeBill.billNumber || ''}`}

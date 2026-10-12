@@ -102,6 +102,9 @@ export default function ReturnDetailDialog({ returnId, onClose }) {
             <Divider />
             <Stack spacing={1}>
               <Line label="Return credit" value={formatCurrency(r.refundTotal)} color="success.main" />
+              {r.dueAdjusted > 0 && (
+                <Line label="Cleared from unpaid balance" value={formatCurrency(r.dueAdjusted)} color="warning.main" />
+              )}
               {r.exchangeTotal > 0 && <Line label="Exchange (new items)" value={formatCurrency(r.exchangeTotal)} />}
               <Divider />
               <Stack direction="row" justifyContent="space-between" alignItems="center">

@@ -33,9 +33,13 @@ function ListRow({ label, date, amount }) {
 // `filters` = { search, paymentStatus } are optional print-only filters, chosen in
 // the dialog (blank = no filter). `paymentOptions` (null = no payment filter) lists
 // the payment statuses offered.
+// Lists without filters (e.g. dues) omit `filters`.
+const NO_FILTERS = { search: '', paymentStatus: '' };
+
 export default function ListPrintDialog({
   open, onClose, title, range, rows, count, total, totalLabel, user,
-  filters, onFiltersChange, paymentOptions = null, loading = false, truncated = false, limit,
+  filters = NO_FILTERS, onFiltersChange, paymentOptions = null, loading = false, truncated = false, limit,
+  showFilters = true,
 }) {
   const { enqueueSnackbar } = useSnackbar();
   const [printing, setPrinting] = useState(false);
@@ -56,8 +60,10 @@ export default function ListPrintDialog({
     }
   };
 
-  const fromLabel = range.from ? formatDate(range.from) : 'Start';
-  const toLabel = range.to ? formatDate(range.to) : 'Today';
+  // Lists without a date range (e.g. dues) print as on today.
+  const rangeLabel = range
+    ? `${range.from ? formatDate(range.from) : 'Start'} to ${range.to ? formatDate(range.to) : 'Today'}`
+    : `As on ${formatDate(new Date())}`;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -70,6 +76,7 @@ export default function ListPrintDialog({
       </DialogTitle>
 
       <DialogContent dividers>
+        {showFilters && (
         <Stack spacing={1.5} className="no-print" sx={{ mb: 2 }}>
           <Typography variant="caption" color="text.secondary">
             Optional filters for the printout (leave blank to print everything in the date range)
@@ -97,6 +104,7 @@ export default function ListPrintDialog({
             </TextField>
           )}
         </Stack>
+        )}
 
         <Box
           className="receipt-area"
@@ -119,7 +127,7 @@ export default function ListPrintDialog({
             {title.toUpperCase()} LIST
           </Typography>
           <Typography component="div" sx={{ textAlign: 'center', fontWeight: 700 }}>
-            {fromLabel} to {toLabel}
+            {rangeLabel}
           </Typography>
 
           {appliedFilters.length > 0 && (

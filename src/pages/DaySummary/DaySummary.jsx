@@ -106,6 +106,16 @@ export default function DaySummaryPage() {
             <Line label="Discount" value={`- ${formatCurrency(sales.discount)}`} />
             {sales.tax > 0 && <Line label="Tax" value={formatCurrency(sales.tax)} />}
             <Line label="Items sold" value={formatNumber(sales.itemsSold)} />
+            {sales.creditGiven > 0 && (
+              <>
+                <Line label="Sold on credit" value={formatCurrency(sales.creditGiven)} />
+                <Line
+                  label="Credit still pending"
+                  value={formatCurrency(sales.creditPending)}
+                  color={sales.creditPending > 0 ? 'warning.main' : 'success.main'}
+                />
+              </>
+            )}
           </SectionCard>
         </Grid>
 
@@ -114,7 +124,12 @@ export default function DaySummaryPage() {
             {(s?.paymentsIn || []).map((p) => (
               <Line key={p.method} label={PAYMENT_METHOD_LABELS[p.method] || p.method} value={formatCurrency(p.amount)} />
             ))}
-            {(s?.paymentsIn || []).length === 0 && <Typography variant="body2" color="text.secondary">No payments.</Typography>}
+            {(s?.duesIn || []).map((p) => (
+              <Line key={`dues-${p.method}`} label={`Dues · ${PAYMENT_METHOD_LABELS[p.method] || p.method}`} value={formatCurrency(p.amount)} />
+            ))}
+            {(s?.paymentsIn || []).length === 0 && (s?.duesIn || []).length === 0 && (
+              <Typography variant="body2" color="text.secondary">No payments.</Typography>
+            )}
             <Divider />
             <Line label="Total in" value={formatCurrency(s?.totalCollected)} strong />
             {s?.totalRefunded > 0 && (

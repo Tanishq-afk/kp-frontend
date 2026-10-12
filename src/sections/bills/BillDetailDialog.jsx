@@ -9,6 +9,7 @@ import { useIsMobile } from 'src/hooks/useIsMobile.js';
 import * as billsApi from 'src/api/bills.api.js';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
 import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS, PAYMENT_STATUS_COLOR } from 'src/config/constants.js';
+import { paidLater } from 'src/utils/billAmounts.js';
 
 function Line({ label, value, strong, color }) {
   return (
@@ -125,6 +126,10 @@ export default function BillDetailDialog({ billId, onClose, onPrint }) {
                 )}
                 {b.changeReturned > 0 && (
                   <Line label="Change returned" value={formatCurrency(b.changeReturned)} color="success.main" />
+                )}
+                {paidLater(b) > 0 && <Line label="Paid later (dues)" value={formatCurrency(paidLater(b))} />}
+                {b.amountDue > 0 && (
+                  <Line label="Balance due" value={formatCurrency(b.amountDue)} strong color="error.main" />
                 )}
               </Stack>
             </Box>
