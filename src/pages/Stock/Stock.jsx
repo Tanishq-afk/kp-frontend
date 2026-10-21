@@ -8,7 +8,6 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
-import LayersRoundedIcon from '@mui/icons-material/LayersRounded';
 import RemoveShoppingCartRoundedIcon from '@mui/icons-material/RemoveShoppingCartRounded';
 import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import PageHeader from 'src/components/PageHeader';
@@ -78,34 +77,26 @@ export default function StockPage() {
     <Box>
       <PageHeader title="Stock" subtitle="Inventory overview" />
 
-      {/* Total Products = Products In Stock + Out of Stock (all product counts);
-          Units In Stock is pieces, summed across products — a different unit. */}
-      <Grid container spacing={2} columns={{ xs: 12, md: 15 }} sx={{ mb: 2 }}>
+      {/* All three are unit (piece) counts: Total = Out of Stock (sold) + Available. */}
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Total Products" value={formatNumber(s.totalProducts)} icon={<Inventory2RoundedIcon />} />
+          <StatCard label="Total Units" value={formatNumber(s.totalUnits)} icon={<Inventory2RoundedIcon />} />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            label="Products In Stock"
-            value={formatNumber(s.inStock)}
-            icon={<CheckCircleRoundedIcon />}
-            color="success"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            label="Out of Stock"
-            value={formatNumber(s.outOfStock)}
+            label="Out of Stock Units"
+            value={formatNumber(s.soldUnits)}
+            caption="Sold"
             icon={<RemoveShoppingCartRoundedIcon />}
             color="error"
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            label="Units In Stock"
-            value={formatNumber(s.totalUnitsInStock)}
-            icon={<LayersRoundedIcon />}
-            color="info"
+            label="Available Units"
+            value={formatNumber(s.availableUnits)}
+            icon={<CheckCircleRoundedIcon />}
+            color="success"
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
