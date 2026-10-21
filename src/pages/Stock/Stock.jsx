@@ -10,6 +10,7 @@ import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RemoveShoppingCartRoundedIcon from '@mui/icons-material/RemoveShoppingCartRounded';
 import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
+import SellRoundedIcon from '@mui/icons-material/SellRounded';
 import PageHeader from 'src/components/PageHeader';
 import StatCard from 'src/components/StatCard';
 import * as dashboardApi from 'src/api/dashboard.api.js';
@@ -77,8 +78,8 @@ export default function StockPage() {
     <Box>
       <PageHeader title="Stock" subtitle="Inventory overview" />
 
-      {/* All three are unit (piece) counts: Total = Out of Stock (sold) + Available. */}
-      <Grid container spacing={2} sx={{ mb: 2 }}>
+      {/* The three unit (piece) counts add up: Total = Out of Stock (sold) + Available. */}
+      <Grid container spacing={2} columns={{ xs: 12, md: 15 }} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard label="Total Units" value={formatNumber(s.totalUnits)} icon={<Inventory2RoundedIcon />} />
         </Grid>
@@ -105,6 +106,14 @@ export default function StockPage() {
             value={formatCurrency(s.inventoryCostValue)}
             icon={<PaymentsRoundedIcon />}
             color="warning"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            label="Inventory Value (MRP)"
+            value={formatCurrency(s.inventoryRetailValue)}
+            icon={<SellRoundedIcon />}
+            color="info"
           />
         </Grid>
       </Grid>
