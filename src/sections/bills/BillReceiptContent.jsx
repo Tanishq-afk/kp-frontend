@@ -117,6 +117,9 @@ export default function BillReceiptContent({ bill: b }) {
       <Row label={usesItemDiscounts(b) ? 'Item Discounts' : 'Discount'} value={discountLabel} />
       <Row label="Additional Charges" value={formatCurrency(b.tax)} />
       <Row label="Final Amount" value={formatCurrency(b.total)} bold />
+      <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500, mt: 0.5 }}>
+        All prices are inclusive of GST.
+      </Typography>
 
       <Rule />
       {(b.payments || []).map((p, i) => (
