@@ -9,7 +9,7 @@ import { lineDiscountLabel } from 'src/utils/discount.js';
 // `medium` for a slight emphasis (e.g. customer details), plain regular
 // weight otherwise (matches the shop's real receipt — heavy bold everywhere
 // looked muddy on the thermal print head).
-function Row({ label, value, bold, medium }) {
+export function Row({ label, value, bold, medium }) {
   const weight = bold ? 700 : medium ? 600 : 400;
   return (
     <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ fontWeight: weight }}>
@@ -19,7 +19,7 @@ function Row({ label, value, bold, medium }) {
   );
 }
 
-const Rule = () => <Box sx={{ borderTop: '1px dashed #000', my: 0.75 }} />;
+export const Rule = () => <Box sx={{ borderTop: '1px dashed #000', my: 0.75 }} />;
 
 // The shop's standard return/exchange policy, printed on every bill.
 const TERMS = [

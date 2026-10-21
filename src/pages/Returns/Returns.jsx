@@ -10,6 +10,7 @@ import ExchangeCart from 'src/sections/returns/ExchangeCart.jsx';
 import SettlementPanel from 'src/sections/returns/SettlementPanel.jsx';
 import ReturnSuccessDialog from 'src/sections/returns/ReturnSuccessDialog.jsx';
 import ReturnsHistory from 'src/sections/returns/ReturnsHistory.jsx';
+import ReturnReceiptDialog from 'src/sections/returns/ReturnReceiptDialog.jsx';
 import { useReturn } from 'src/hooks/useReturn.js';
 import * as returnsApi from 'src/api/returns.api.js';
 import * as barcodesApi from 'src/api/barcodes.api.js';
@@ -21,6 +22,7 @@ export default function ReturnsPage() {
   const { enqueueSnackbar } = useSnackbar();
   const qc = useQueryClient();
   const [success, setSuccess] = useState(null);
+  const [slipId, setSlipId] = useState(null);
   const [tab, setTab] = useState(0); // 0 = new return, 1 = history
 
   // Step 1 -> load a bill's returnable items.
@@ -129,7 +131,8 @@ export default function ReturnsPage() {
         </Grid>
       )}
 
-      <ReturnSuccessDialog result={success} onNew={() => setSuccess(null)} />
+      <ReturnSuccessDialog result={success} onNew={() => setSuccess(null)} onPrint={(id) => setSlipId(id)} />
+      <ReturnReceiptDialog returnId={slipId} onClose={() => setSlipId(null)} />
     </>
   );
 }

@@ -2,6 +2,7 @@ import {
   Button, Chip, Dialog, DialogActions, DialogContent, Divider, Stack, Typography,
 } from '@mui/material';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import { formatCurrency } from 'src/utils/format.js';
 
 function Row({ label, value, color }) {
@@ -20,7 +21,7 @@ const DIRECTION_LABEL = {
 };
 
 // Confirmation shown after a return / exchange is processed.
-export default function ReturnSuccessDialog({ result, onNew }) {
+export default function ReturnSuccessDialog({ result, onNew, onPrint }) {
   const r = result;
   const dir = r?.settlement?.direction;
   const newLabels = (r?.items || []).filter((it) => it.newBarcode).length;
@@ -63,6 +64,15 @@ export default function ReturnSuccessDialog({ result, onNew }) {
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
+        <Button
+          fullWidth
+          variant="outlined"
+          size="large"
+          startIcon={<PrintRoundedIcon />}
+          onClick={() => onPrint?.(r?._id)}
+        >
+          Print slip
+        </Button>
         <Button fullWidth variant="contained" size="large" onClick={onNew}>
           New return
         </Button>

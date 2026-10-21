@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
-  Box, Button, Chip, InputAdornment, Paper, Stack, Table, TableBody, TableCell, TableHead,
-  TablePagination, TableRow, TextField, Typography,
+  Box, Button, Chip, IconButton, InputAdornment, Paper, Stack, Table, TableBody, TableCell, TableHead,
+  TablePagination, TableRow, TextField, Tooltip, Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 import ReturnDetailDialog from './ReturnDetailDialog.jsx';
+import ReturnReceiptDialog from './ReturnReceiptDialog.jsx';
 import ListPrintDialog from 'src/sections/reports/ListPrintDialog.jsx';
 import * as returnsApi from 'src/api/returns.api.js';
 import { useAuth } from 'src/hooks/useAuth.js';
@@ -27,6 +28,7 @@ export default function ReturnsHistory({ printable = false }) {
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [detailId, setDetailId] = useState(null);
+  const [slipId, setSlipId] = useState(null);
   const [printOpen, setPrintOpen] = useState(false);
   const [printFilters, setPrintFilters] = useState({ search: '', paymentStatus: '' });
   const { user } = useAuth();
@@ -97,6 +99,7 @@ export default function ReturnsHistory({ printable = false }) {
               <TableCell align="right">Items</TableCell>
               <TableCell align="right">Refund</TableCell>
               <TableCell>Settlement</TableCell>
+              <TableCell align="right">Print</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -115,11 +118,21 @@ export default function ReturnsHistory({ printable = false }) {
                     label={`${DIRECTION_LABEL[r.settlement?.direction] || '—'} ${formatCurrency(r.settlement?.amount)}`}
                   />
                 </TableCell>
+                <TableCell align="right">
+                  <Tooltip title="Print return slip">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); setSlipId(r._id); }}
+                    >
+                      <PrintRoundedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             ))}
             {!isLoading && items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                   <Typography color="text.secondary">No returns found</Typography>
                 </TableCell>
               </TableRow>
@@ -138,6 +151,7 @@ export default function ReturnsHistory({ printable = false }) {
       </Paper>
 
       <ReturnDetailDialog returnId={detailId} onClose={() => setDetailId(null)} />
+      <ReturnReceiptDialog returnId={slipId} onClose={() => setSlipId(null)} />
       {printable && (
         <ListPrintDialog
           open={printOpen}
