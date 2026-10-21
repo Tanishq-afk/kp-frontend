@@ -9,6 +9,9 @@ dayjs.extend(timezone);
 export const IST_TZ = 'Asia/Kolkata';
 // Today's IST calendar date as a plain dayjs (safe for date pickers).
 export const todayIST = () => dayjs(dayjs().tz(IST_TZ).format('YYYY-MM-DD'));
+// Default report range: the current IST month, 1st through its last day.
+export const monthStartIST = () => todayIST().startOf('month');
+export const monthEndIST = () => todayIST().endOf('month').startOf('day');
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 // A 'YYYY-MM-DD' calendar date is shown as written; an instant is converted to IST.
 const toIST = (d) => (typeof d === 'string' && DATE_ONLY.test(d) ? dayjs(d) : dayjs(d).tz(IST_TZ));

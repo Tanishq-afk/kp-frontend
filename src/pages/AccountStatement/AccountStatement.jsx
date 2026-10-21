@@ -14,13 +14,13 @@ import { useAuth } from 'src/hooks/useAuth.js';
 import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import MoneyOffRoundedIcon from '@mui/icons-material/MoneyOffRounded';
 import * as dashboardApi from 'src/api/dashboard.api.js';
-import { formatCurrency, formatDate, todayIST } from 'src/utils/format.js';
+import { formatCurrency, formatDate, monthEndIST, monthStartIST } from 'src/utils/format.js';
 
-// Account statement: day-wise net sale for a date range (default: the last month),
+// Account statement: day-wise net sale for a date range (default: the current month),
 // then the total revenue, less expenses in the same range.
 export default function AccountStatementPage() {
-  const [from, setFrom] = useState(todayIST().subtract(1, 'month'));
-  const [to, setTo] = useState(todayIST());
+  const [from, setFrom] = useState(monthStartIST());
+  const [to, setTo] = useState(monthEndIST());
   const [printOpen, setPrintOpen] = useState(false);
   const { user } = useAuth();
 
