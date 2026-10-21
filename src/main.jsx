@@ -8,6 +8,7 @@ import { SnackbarProvider } from 'notistack';
 import ThemeProvider from './theme/index.js';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { router } from './routes/index.jsx';
+import { DATE_FORMAT } from './utils/format.js';
 import './styles/print.css';
 
 const queryClient = new QueryClient({
@@ -19,7 +20,7 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} dateFormats={{ keyboardDate: DATE_FORMAT }}>
         <SnackbarProvider
           maxSnack={3}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}

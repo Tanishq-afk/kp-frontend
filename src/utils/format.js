@@ -23,8 +23,10 @@ export const formatCurrency = (n) =>
 
 export const formatNumber = (n) => new Intl.NumberFormat('en-IN').format(Number(n) || 0);
 
-export const formatDate = (d) => (d ? toIST(d).format('DD MMM YYYY') : '');
-export const formatDateTime = (d) => (d ? toIST(d).format('DD MMM YYYY, hh:mm A') : '');
+// Dates are shown day/month/year everywhere (Indian convention).
+export const DATE_FORMAT = 'DD/MM/YYYY';
+export const formatDate = (d) => (d ? toIST(d).format(DATE_FORMAT) : '');
+export const formatDateTime = (d) => (d ? toIST(d).format(`${DATE_FORMAT}, hh:mm A`) : '');
 
 // Pulls a readable message out of an API/axios error (our client normalizes
 // errors to Error objects with .message and optional .errors[]).

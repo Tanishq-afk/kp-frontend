@@ -129,7 +129,7 @@ export default function DashboardPage() {
                 xAxis={[{
                   scaleType: 'point',
                   data: dailyRows.map((d) => d.date),
-                  valueFormatter: (v) => dayjs(v).format('DD MMM'),
+                  valueFormatter: (v) => dayjs(v).format('DD/MM'),
                 }]}
                 series={[{
                   data: dailyRows.map((d) => d.revenue),
