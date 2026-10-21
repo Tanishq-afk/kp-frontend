@@ -5,3 +5,6 @@ export const paidLater = (bill) => {
   const later = (Number(bill?.amountPaid) || 0) - atCounter - (Number(bill?.appliedCredit) || 0);
   return Math.max(0, Math.round(later * 100) / 100);
 };
+
+// True when the bill's discount came from item-wise discounts (not a bill discount).
+export const usesItemDiscounts = (bill) => (bill?.items || []).some((it) => it.discount > 0);

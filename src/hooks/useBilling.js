@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { DISCOUNT_TYPE, PAYMENT_METHOD } from 'src/config/constants.js';
+import { itemDiscountsPayload, lineDiscount } from 'src/utils/discount.js';
 
 const emptyCustomer = { id: null, name: '', phone: '' };
 
@@ -7,7 +8,8 @@ const emptyCustomer = { id: null, name: '', phone: '' };
 // payments, remarks) and derives the money totals + the API payload. The page
 // layer handles the actual API mutations and toasts.
 export function useBilling() {
-  const [items, setItems] = useState([]); // { code, barcodeId, productId, productName, size, mrp }
+  // { code, barcodeId, productId, productName, size, mrp, discountType, discountValue }
+  const [items, setItems] = useState([]);
   const [customer, setCustomer] = useState(emptyCustomer);
   const [discountType, setDiscountType] = useState(DISCOUNT_TYPE.FLAT);
   const [discountValue, setDiscountValue] = useState('');
@@ -28,9 +30,16 @@ export function useBilling() {
           productName: barcode.productName,
           size: barcode.size,
           mrp: Number(barcode.mrp) || 0,
+          discountType: DISCOUNT_TYPE.FLAT,
+          discountValue: '',
         },
       ];
     });
+  }, []);
+
+  // Item-wise discount on one cart line (patch: { discountType?, discountValue? }).
+  const setItemDiscount = useCallback((code, patch) => {
+    setItems((prev) => prev.map((i) => (i.code === code ? { ...i, ...patch } : i)));
   }, []);
 
   const removeItem = useCallback((code) => {
@@ -59,11 +68,18 @@ export function useBilling() {
 
   // --- derived totals ---
   const subtotal = useMemo(() => items.reduce((s, i) => s + Number(i.mrp || 0), 0), [items]);
+  // A bill uses item discounts OR a bill discount, never both (the backend
+  // rejects both); whichever is in use locks the other's inputs.
+  const itemDiscountTotal = useMemo(() => items.reduce((s, i) => s + lineDiscount(i).discount, 0), [items]);
+  const hasItemDiscount = items.some((i) => Number(i.discountValue) > 0);
+  const hasBillDiscount = Number(discountValue) > 0;
+  const itemDiscountError = items.some((i) => lineDiscount(i).error);
   const discountAmount = useMemo(() => {
+    if (hasItemDiscount) return Math.min(itemDiscountTotal, subtotal);
     const v = Number(discountValue) || 0;
     const amt = discountType === DISCOUNT_TYPE.PERCENT ? Math.round((subtotal * v) / 100) : v;
     return Math.max(0, Math.min(amt, subtotal));
-  }, [discountType, discountValue, subtotal]);
+  }, [hasItemDiscount, itemDiscountTotal, discountType, discountValue, subtotal]);
   const total = Math.max(0, subtotal - discountAmount);
   const amountPaid = useMemo(
     () => payments.reduce((s, p) => s + (Number(p.amount) || 0), 0),
@@ -76,6 +92,7 @@ export function useBilling() {
   const buildPayload = useCallback(
     () => ({
       barcodes: items.map((i) => i.code),
+      itemDiscounts: itemDiscountsPayload(items),
       customer:
         customer.phone && customer.name
           ? { name: customer.name.trim(), phone: customer.phone.trim() }
@@ -95,7 +112,8 @@ export function useBilling() {
   );
 
   return {
-    items, hasItem, addItem, removeItem, reset,
+    items, hasItem, addItem, removeItem, reset, setItemDiscount,
+    hasItemDiscount, hasBillDiscount, itemDiscountError,
     customer, setCustomer,
     discountType, setDiscountType, discountValue, setDiscountValue,
     payments, addPayment, updatePayment, removePayment,
