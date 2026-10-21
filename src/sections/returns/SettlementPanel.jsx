@@ -33,7 +33,7 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
     newItems, discountType, setDiscountType, discountValue, setDiscountValue,
     exchangeSubtotal, exchangeDiscount, exchangeTotal,
     direction, settleAmount, payments, addPayment, updatePayment, removePayment, balance,
-    remarks, setRemarks, canSubmit,
+    remarks, setRemarks, canSubmit, hasItemDiscount, itemDiscountError,
   } = rtn;
 
   const hasExchange = newItems.length > 0;
@@ -70,6 +70,7 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
               exclusive
               size="small"
               value={discountType}
+              disabled={hasItemDiscount}
               onChange={(_, v) => v && setDiscountType(v)}
             >
               <ToggleButton value={DISCOUNT_TYPE.FLAT}>₹</ToggleButton>
@@ -81,8 +82,9 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
               value={discountValue}
               onChange={(e) => setDiscountValue(e.target.value)}
               placeholder={discountType === DISCOUNT_TYPE.PERCENT ? 'Percent' : 'Amount'}
+              disabled={hasItemDiscount}
               error={Boolean(discountError)}
-              helperText={discountError || undefined}
+              helperText={discountError || (hasItemDiscount ? 'Using item discounts' : undefined)}
             />
           </Stack>
         </Paper>
@@ -112,7 +114,7 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
             <>
               <Row label="New items" value={formatCurrency(exchangeSubtotal)} />
               {exchangeDiscount > 0 && (
-                <Row label="Discount" value={`- ${formatCurrency(exchangeDiscount)}`} />
+                <Row label={hasItemDiscount ? 'Item discounts' : 'Discount'} value={`- ${formatCurrency(exchangeDiscount)}`} />
               )}
               <Row label="New items total" value={formatCurrency(exchangeTotal)} />
             </>
@@ -134,7 +136,7 @@ export default function SettlementPanel({ rtn, onSubmit, submitting }) {
           variant="contained"
           size="large"
           sx={{ mt: 2 }}
-          disabled={!canSubmit || submitting || Boolean(discountError)}
+          disabled={!canSubmit || submitting || Boolean(discountError) || itemDiscountError}
           onClick={onSubmit}
         >
           {submitLabel}

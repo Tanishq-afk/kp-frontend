@@ -101,7 +101,12 @@ export default function BillingPage() {
         <Grid item xs={12} md={7}>
           <Stack spacing={2}>
             <ScanBox onScan={scan.mutate} loading={scan.isPending} />
-            <CartList items={billing.items} onRemove={billing.removeItem} />
+            <CartList
+              items={billing.items}
+              onRemove={billing.removeItem}
+              onDiscountChange={billing.setItemDiscount}
+              discountLocked={billing.hasBillDiscount}
+            />
           </Stack>
         </Grid>
         <Grid item xs={12} md={5}>

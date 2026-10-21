@@ -4,7 +4,7 @@ import CartList from 'src/sections/billing/CartList.jsx';
 
 // Optional exchange leg: scan new items the customer is buying in the same
 // transaction. Reuses the billing scan box + cart.
-export default function ExchangeCart({ onScan, scanning, items, onRemove }) {
+export default function ExchangeCart({ onScan, scanning, items, onRemove, onDiscountChange, discountLocked }) {
   return (
     <Stack spacing={1.5}>
       <Paper sx={{ p: 2 }}>
@@ -14,7 +14,9 @@ export default function ExchangeCart({ onScan, scanning, items, onRemove }) {
         </Typography>
         <ScanBox onScan={onScan} loading={scanning} />
       </Paper>
-      {items.length > 0 && <CartList items={items} onRemove={onRemove} />}
+      {items.length > 0 && (
+        <CartList items={items} onRemove={onRemove} onDiscountChange={onDiscountChange} discountLocked={discountLocked} />
+      )}
     </Stack>
   );
 }

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { DISCOUNT_TYPE, PAYMENT_METHOD } from 'src/config/constants.js';
+import { itemDiscountsPayload, lineDiscount } from 'src/utils/discount.js';
 
 // Encapsulates the returns-counter state: the picked original bill, which of its
 // units are being returned (each resellable/damaged), an optional exchange cart
@@ -61,9 +62,14 @@ export function useReturn() {
           productName: bc.productName,
           size: bc.size,
           mrp: Number(bc.mrp) || 0,
+          discountType: DISCOUNT_TYPE.FLAT,
+          discountValue: '',
         },
       ];
     });
+  }, []);
+  const setNewItemDiscount = useCallback((code, patch) => {
+    setNewItems((prev) => prev.map((i) => (i.code === code ? { ...i, ...patch } : i)));
   }, []);
   const removeNewItem = useCallback((code) => {
     setNewItems((prev) => prev.filter((i) => i.code !== code));
@@ -112,11 +118,18 @@ export function useReturn() {
     () => newItems.reduce((s, i) => s + (Number(i.mrp) || 0), 0),
     [newItems]
   );
+  // Exchange items use item discounts OR a bill discount, never both.
+  const hasItemDiscount = newItems.some((i) => Number(i.discountValue) > 0);
+  const hasBillDiscount = Number(discountValue) > 0;
+  const itemDiscountError = newItems.some((i) => lineDiscount(i).error);
   const exchangeDiscount = useMemo(() => {
+    if (hasItemDiscount) {
+      return Math.min(newItems.reduce((s, i) => s + lineDiscount(i).discount, 0), exchangeSubtotal);
+    }
     const v = Number(discountValue) || 0;
     const amt = discountType === DISCOUNT_TYPE.PERCENT ? Math.round((exchangeSubtotal * v) / 100) : v;
     return Math.max(0, Math.min(amt, exchangeSubtotal));
-  }, [discountType, discountValue, exchangeSubtotal]);
+  }, [hasItemDiscount, newItems, discountType, discountValue, exchangeSubtotal]);
   const exchangeTotal = Math.max(0, exchangeSubtotal - exchangeDiscount);
 
   const netAmount = exchangeTotal - usableCredit; // >0 collect, <0 refund, 0 even
@@ -141,6 +154,7 @@ export function useReturn() {
         labelLost: it.labelLost || false,
       })),
       newBarcodes: newItems.map((i) => i.code),
+      itemDiscounts: itemDiscountsPayload(newItems),
       discountType,
       discountValue: Number(discountValue) || 0,
       payments: payments
@@ -158,7 +172,8 @@ export function useReturn() {
   return {
     source, loadBill, reset,
     selected, isSelected, toggleReturn, setResellable, setLabelLost,
-    newItems, hasNewItem, addNewItem, removeNewItem,
+    newItems, hasNewItem, addNewItem, removeNewItem, setNewItemDiscount,
+    hasItemDiscount, hasBillDiscount, itemDiscountError,
     discountType, setDiscountType, discountValue, setDiscountValue,
     payments, addPayment, updatePayment, removePayment,
     remarks, setRemarks,

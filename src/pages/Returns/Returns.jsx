@@ -118,6 +118,8 @@ export default function ReturnsPage() {
                 scanning={scan.isPending}
                 items={rtn.newItems}
                 onRemove={rtn.removeNewItem}
+                onDiscountChange={rtn.setNewItemDiscount}
+                discountLocked={rtn.hasBillDiscount}
               />
             </Stack>
           </Grid>

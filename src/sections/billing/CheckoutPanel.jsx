@@ -29,7 +29,7 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
     items, customer, setCustomer,
     discountType, setDiscountType, discountValue, setDiscountValue,
     payments, addPayment, updatePayment, removePayment,
-    remarks, setRemarks,
+    remarks, setRemarks, hasItemDiscount, itemDiscountError,
     subtotal, discountAmount, total, amountPaid, balance, change,
   } = billing;
 
@@ -56,8 +56,9 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
 
   const discountError = discountProblem(discountType, discountValue, subtotal);
   const creditOk = balance === 0 || (hasCustomer && creditAccepted);
-  const canComplete = items.length > 0 && total > 0 && creditOk && !discountError;
-  const canHold = items.length > 0 && !discountError;
+  const discountBlocked = Boolean(discountError) || itemDiscountError;
+  const canComplete = items.length > 0 && total > 0 && creditOk && !discountBlocked;
+  const canHold = items.length > 0 && !discountBlocked;
 
   return (
     <Stack spacing={2}>
@@ -72,6 +73,7 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
             exclusive
             size="small"
             value={discountType}
+            disabled={hasItemDiscount}
             onChange={(_, v) => v && setDiscountType(v)}
           >
             <ToggleButton value={DISCOUNT_TYPE.FLAT}>₹</ToggleButton>
@@ -83,8 +85,9 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
             value={discountValue}
             onChange={(e) => setDiscountValue(e.target.value)}
             placeholder={discountType === DISCOUNT_TYPE.PERCENT ? 'Percent' : 'Amount'}
+            disabled={hasItemDiscount}
             error={Boolean(discountError)}
-            helperText={discountError || undefined}
+            helperText={discountError || (hasItemDiscount ? 'Using item discounts' : undefined)}
           />
         </Stack>
       </Paper>
@@ -121,7 +124,7 @@ export default function CheckoutPanel({ billing, onLookupCustomer, onComplete, o
       <Paper sx={{ p: 2 }}>
         <Stack spacing={1}>
           <Row label="Subtotal" value={formatCurrency(subtotal)} />
-          <Row label="Discount" value={`- ${formatCurrency(discountAmount)}`} />
+          <Row label={hasItemDiscount ? 'Item discounts' : 'Discount'} value={`- ${formatCurrency(discountAmount)}`} />
           <Divider />
           <Row label="Total" value={formatCurrency(total)} strong />
           <Row label="Paid" value={formatCurrency(amountPaid)} />

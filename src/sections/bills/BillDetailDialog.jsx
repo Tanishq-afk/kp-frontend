@@ -9,7 +9,8 @@ import { useIsMobile } from 'src/hooks/useIsMobile.js';
 import * as billsApi from 'src/api/bills.api.js';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
 import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS, PAYMENT_STATUS_COLOR } from 'src/config/constants.js';
-import { paidLater } from 'src/utils/billAmounts.js';
+import { paidLater, usesItemDiscounts } from 'src/utils/billAmounts.js';
+import { lineDiscountLabel } from 'src/utils/discount.js';
 
 function Line({ label, value, strong, color }) {
   return (
@@ -33,8 +34,9 @@ export default function BillDetailDialog({ billId, onClose, onPrint }) {
     enabled: open,
   });
 
+  const itemMode = usesItemDiscounts(b);
   const discountLabel =
-    b?.discountType === DISCOUNT_TYPE.PERCENT
+    !itemMode && b?.discountType === DISCOUNT_TYPE.PERCENT
       ? `${b.discountValue}%  (- ${formatCurrency(b.discount)})`
       : `- ${formatCurrency(b?.discount)}`;
 
@@ -73,6 +75,8 @@ export default function BillDetailDialog({ billId, onClose, onPrint }) {
                     <TableCell>Item</TableCell>
                     <TableCell>Size</TableCell>
                     <TableCell align="right">MRP</TableCell>
+                    {itemMode && <TableCell align="right">Discount</TableCell>}
+                    {itemMode && <TableCell align="right">Net</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -82,6 +86,12 @@ export default function BillDetailDialog({ billId, onClose, onPrint }) {
                       <TableCell>{it.productName}</TableCell>
                       <TableCell>{it.size}</TableCell>
                       <TableCell align="right">{formatCurrency(it.mrp)}</TableCell>
+                      {itemMode && (
+                        <TableCell align="right">
+                          {it.discount > 0 ? `${lineDiscountLabel(it)} (- ${formatCurrency(it.discount)})` : '—'}
+                        </TableCell>
+                      )}
+                      {itemMode && <TableCell align="right">{formatCurrency(it.netPrice ?? it.mrp)}</TableCell>}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -95,7 +105,7 @@ export default function BillDetailDialog({ billId, onClose, onPrint }) {
             <Divider />
             <Stack spacing={1}>
               <Line label="Subtotal" value={formatCurrency(b.subtotal)} />
-              <Line label="Discount" value={discountLabel} />
+              <Line label={itemMode ? 'Item discounts' : 'Discount'} value={discountLabel} />
               {b.tax > 0 && <Line label="Tax" value={formatCurrency(b.tax)} />}
               <Divider />
               <Line label="Total" value={formatCurrency(b.total)} strong />

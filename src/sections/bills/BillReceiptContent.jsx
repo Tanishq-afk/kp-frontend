@@ -2,7 +2,8 @@ import { Box, Stack, Typography } from '@mui/material';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
 import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
-import { paidLater } from 'src/utils/billAmounts.js';
+import { paidLater, usesItemDiscounts } from 'src/utils/billAmounts.js';
+import { lineDiscountLabel } from 'src/utils/discount.js';
 
 // A single label/value line in the slip. `bold` for headings/key totals,
 // `medium` for a slight emphasis (e.g. customer details), plain regular
@@ -33,7 +34,9 @@ const TERMS = [
 // (PrintBill page) without dragging along the Dialog/preview chrome.
 export default function BillReceiptContent({ bill: b }) {
   const discountLabel = b
-    ? b.discountType === DISCOUNT_TYPE.PERCENT
+    ? usesItemDiscounts(b)
+      ? `- ${formatCurrency(b.discount)}`
+      : b.discountType === DISCOUNT_TYPE.PERCENT
       ? `${b.discountValue}% (- ${formatCurrency(b.discount)})`
       : `- ${formatCurrency(b.discount)}`
     : '';
@@ -82,21 +85,36 @@ export default function BillReceiptContent({ bill: b }) {
       <Rule />
       {(b.items || []).map((it, i) => (
         // eslint-disable-next-line react/no-array-index-key
-        <Stack key={i} direction="row" spacing={1} sx={{ mb: 0.75, fontWeight: 500, fontSize: 18 }}>
-          <Box component="span" sx={{ width: 24 }}>{i + 1}</Box>
-          <Box component="span" sx={{ flex: 1 }}>
-            {it.productName}
-            {it.size && it.size !== 'Free Size' ? ` (${it.size})` : ''}
-          </Box>
-          <Box component="span" sx={{ width: 30, textAlign: 'right' }}>1</Box>
-          <Box component="span" sx={{ width: 76, textAlign: 'right' }}>{formatCurrency(it.mrp)}</Box>
-        </Stack>
+        <Box key={i} sx={{ mb: 0.75 }}>
+          <Stack direction="row" spacing={1} sx={{ fontWeight: 500, fontSize: 18 }}>
+            <Box component="span" sx={{ width: 24 }}>{i + 1}</Box>
+            <Box component="span" sx={{ flex: 1 }}>
+              {it.productName}
+              {it.size && it.size !== 'Free Size' ? ` (${it.size})` : ''}
+            </Box>
+            <Box component="span" sx={{ width: 30, textAlign: 'right' }}>1</Box>
+            <Box component="span" sx={{ width: 76, textAlign: 'right' }}>{formatCurrency(it.mrp)}</Box>
+          </Stack>
+          {it.discount > 0 && (
+            <>
+              <Stack direction="row" spacing={1} sx={{ fontSize: 16 }}>
+                <Box component="span" sx={{ width: 24 }} />
+                <Box component="span" sx={{ flex: 1 }}>Disc {lineDiscountLabel(it)}</Box>
+                <Box component="span" sx={{ width: 76, textAlign: 'right' }}>- {formatCurrency(it.discount)}</Box>
+              </Stack>
+              <Stack direction="row" spacing={1} sx={{ fontSize: 17, fontWeight: 600 }}>
+                <Box component="span" sx={{ flex: 1 }} />
+                <Box component="span" sx={{ width: 76, textAlign: 'right' }}>{formatCurrency(it.netPrice)}</Box>
+              </Stack>
+            </>
+          )}
+        </Box>
       ))}
       {(!b.items || b.items.length === 0) && <Row label="—" value="No item detail" />}
 
       <Rule />
       <Row label="Total" value={formatCurrency(b.subtotal)} />
-      <Row label="Discount" value={discountLabel} />
+      <Row label={usesItemDiscounts(b) ? 'Item Discounts' : 'Discount'} value={discountLabel} />
       <Row label="Additional Charges" value={formatCurrency(b.tax)} />
       <Row label="Final Amount" value={formatCurrency(b.total)} bold />
 
