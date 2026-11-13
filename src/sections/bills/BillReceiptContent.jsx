@@ -158,9 +158,6 @@ export default function BillReceiptContent({ bill: b }) {
         <QRCodeCanvas value={SHOP_URL} size={120} level="M" marginSize={0} />
       </Box>
       <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
-        kidzplaza.in
-      </Typography>
-      <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
         {'*'.repeat(24)}
       </Typography>
     </Box>
