@@ -1,4 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
+import { QRCodeCanvas } from 'qrcode.react';
 import { formatCurrency, formatDateTime } from 'src/utils/format.js';
 import { DISCOUNT_TYPE, PAYMENT_METHOD_LABELS } from 'src/config/constants.js';
 import ReceiptLogo from 'src/components/ReceiptLogo.jsx';
@@ -28,6 +29,9 @@ const TERMS = [
   'No Cash Refund.',
   'M.R.P. inclusive of all Taxes.',
 ];
+
+// Printed at the foot of every bill so customers can scan through to the shop's site.
+const SHOP_URL = 'https://kidzplaza.in';
 
 // The actual printable invoice markup (thermal-receipt style) — pulled out of
 // BillReceiptDialog so it can be reused by the hidden print-only window
@@ -148,6 +152,13 @@ export default function BillReceiptContent({ bill: b }) {
       <Rule />
       <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
         Thank you for shopping with us!
+      </Typography>
+      {/* Canvas (not SVG) so html2canvas captures it for raw ESC/POS printing. */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', my: 0.75 }}>
+        <QRCodeCanvas value={SHOP_URL} size={120} level="M" marginSize={0} />
+      </Box>
+      <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
+        kidzplaza.in
       </Typography>
       <Typography component="div" sx={{ textAlign: 'center', fontSize: 15, fontWeight: 500 }}>
         {'*'.repeat(24)}
